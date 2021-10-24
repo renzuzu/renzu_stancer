@@ -29,7 +29,8 @@ Citizen.CreateThread(function()
 end)
 
 function SaveStancer(ob)
-    local result = SqlFunc(Config.Mysql,'fetchAll','SELECT * FROM renzu_stancer WHERE TRIM(plate) = @plate', {['@plate'] = ob.plate})
+    local plate = string.gsub(ob.plate, '^%s*(.-)%s*$', '%1')
+    local result = SqlFunc(Config.Mysql,'fetchAll','SELECT * FROM renzu_stancer WHERE TRIM(plate) = @plate', {['@plate'] = plate})
     if result[1] == nil then
         SqlFunc(Config.Mysql,'execute','INSERT INTO renzu_stancer (plate, setting) VALUES (@plate, @stancer)', {
             ['@plate']   = ob.plate,
@@ -37,7 +38,7 @@ function SaveStancer(ob)
         })
     elseif result[1] then
         SqlFunc(Config.Mysql,'execute','UPDATE renzu_stancer SET setting = @setting WHERE TRIM(plate) = @plate', {
-          ['@plate']   = ob.plate,
+          ['@plate']   = plate,
           ['@setting']   = json.encode(ob.setting),
         })
     end
