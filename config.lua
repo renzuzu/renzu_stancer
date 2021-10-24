@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Mysql = 'ghmattisql'
+Config.Mysql = 'mysql-async' -- mysql-async, ghmattisql, oxmysql
 Config.weight_type = false
 Config.weight = 1.5
 Config.Framework = 'ESX' -- ESX,QBCORE,Standalone (ITEM PURPOSE ONLY)
