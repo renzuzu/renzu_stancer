@@ -92,18 +92,20 @@
       
       #container {
         position: absolute;
-    top: 5%;
-    right: 5%;
-    width: 25vw;
-    margin: 30px auto 0;
-    padding: 12px 30px 50px 30px;
-    background: rgb(29 36 43);
-    box-shadow: #202021 0 25px 38px;
+        top: 5%;
+        right: 5%;
+        width: 20vw;
+        margin: 30px auto 0;
+        padding: 12px 30px 30px 30px;
+        background: rgb(29 36 43);
+        box-shadow: #202021 0 25px 38px;
+        border-radius: 2%;
       }
       
       #container h1 {
         line-height: 42px;
-        margin: 10px 0 15px;
+        margin: 5px 0 5px;
+        font-size: 30px;
       }
       
       label {
@@ -115,7 +117,7 @@
       
       hr {
         border: 1px solid #ccc;
-        margin-bottom: 25px;
+        margin-bottom: 11px;
       }
       
       
@@ -129,7 +131,7 @@
         color: #fff;
         width: 100%;
         height: 52px;
-        margin-top: 32px;
+        margin-top: 12px;
         /*    border-radius: 10px;*/
         background: #FF5E00;
         border: none;
