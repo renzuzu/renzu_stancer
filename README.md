@@ -67,4 +67,8 @@ or the vehicle must have a installed stancer kit)
 ```
 	exports.renzu_stancer:OpenStancer()
 ```
-
+# FAQ
+- when the data is being saved to Database?
+```
+When you delete the vehicle or store in garage
+```
