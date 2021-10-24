@@ -244,57 +244,35 @@ AddEventHandler("renzu_stancer:openstancer", function(vehicle,val,coords)
 end)
 
 local cachedata = {}
+local cache = {}
 CreateThread(function()
 	while true do
-		for k,v in pairs(GetGamePool('CVehicle')) do
+		local ped = PlayerPedId()
+		local coord = GetEntityCoords(ped)
+		local c = 0
+		cachedata = {}
+		for k,v in pairs(vehiclesinarea) do
+			c = c + 1
+			cachedata[c] = v
+		end
+		for k,v in ipairs(GetGamePool('CVehicle')) do
 			local ent = Entity(v).state
-			local dist = #(GetEntityCoords(v) - GetEntityCoords(PlayerPedId()))
+			local dist = #(GetEntityCoords(v) - coord)
 			local plate = string.gsub(tostring(GetVehicleNumberPlateText(v)), '^%s*(.-)%s*$', '%1')
 			if DoesEntityExist(v) and dist < 100 and ent.stancer then
-				local addtable = false
-				--print(ent.stancer,ent.stancer.height)
-				if ent.stancer.wheeledit then
-					for k,v in ipairs(cachedata) do
-						if v.plate == plate then
-							cachedata[k].wheeledit = true
-						end
-					end
-					vehiclesinarea[plate] = nil 
-					--print('removed', plate)
-				elseif not ent.stancer.wheeledit then
+				if not ent.stancer.wheeledit then
 					if vehiclesinarea[plate] == nil then vehiclesinarea[plate] = {} addtable = true vehiclesinarea[plate]['entity'] = v vehiclesinarea[plate]['plate'] = plate end
 					vehiclesinarea[plate]['wheelsetting'] = ent.stancer['wheelsetting']
 					vehiclesinarea[plate]['speed'] = GetEntitySpeed(v)
 					vehiclesinarea[plate]['dist'] = dist
 					vehiclesinarea[plate]['wheeledit'] = ent.stancer.wheeledit
-					if addtable then
-						table.insert(cachedata,vehiclesinarea[plate])
-						--print("ADDED")
-					end
-				end
-				if not ent.stancer.wheeledit then
 					SetVehicleSuspensionHeight(v,ent.stancer.height)
 				end
 			elseif DoesEntityExist(v) and dist > 100 and ent.stancer and vehiclesinarea[plate] then
-				for k,v in ipairs(cachedata) do
-					if v.plate == plate then
-						cachedata[k] = nil
-					end
-				end
 				vehiclesinarea[plate] = nil
-				--table.remove(vehiclesinarea,)
-				--print("entity faraway removed from cache", plate)
 			end
 		end
-		for k,v in pairs(vehiclesinarea) do
-			if not DoesEntityExist(v.entity) then
-				local plate = v.plate
-				plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
-				vehiclesinarea[plate] = nil
-				--table.remove(vehiclesinarea,k)
-				--print("entity deleted removed from cache", plate)
-			end
-		end
+		cache = cachedata
 		Wait(2000)
 	end
 end)
@@ -303,27 +281,26 @@ CreateThread(function()
 	Wait(1000)
 	while true do
 		local sleep = 2000
-		for k,v in pairs(vehiclesinarea) do
-			--local v = cachedata[i]
-			--local nearactivate = v and v.speed <= 0.0 and not v.wheeledit and v.dist < 20 and v ~= nil and v['wheelsetting'] ~= nil
-			local activate = v and not v.wheeledit and v.dist < 100 and v ~= nil and v['wheelsetting'] ~= nil
-			--print(v.speed , v.wheeledit , v.dist , v , v['wheelsetting'])
-			if activate then
-				--print("stance")
+		for i = 1, #cache do
+			local v = cache[i]
+			local activate = v and not v.wheeledit and v.dist < 100 and v['wheelsetting']
+			local exist = DoesEntityExist(v.entity)
+			if activate and exist then
 				sleep = 11
-				SetVehicleWheelWidth(v.entity,0.7) -- trick to avoid stance bug
+				--SetVehicleWheelWidth(v.entity,0.7) -- trick to avoid stance bug
 				SetVehicleWheelXOffset(v.entity,0,tonumber(v['wheelsetting']['wheeloffsetfront'].wheel0))
 				SetVehicleWheelXOffset(v.entity,1,tonumber(v['wheelsetting']['wheeloffsetfront'].wheel1))
 				SetVehicleWheelXOffset(v.entity,2,tonumber(v['wheelsetting']['wheeloffsetrear'].wheel2))
 				SetVehicleWheelXOffset(v.entity,3,tonumber(v['wheelsetting']['wheeloffsetrear'].wheel3))
-				SetVehicleWheelSize(v.entity,GetVehicleWheelSize(v.entity)) -- trick to avoid stance bug tricking the system or game that this is all visual only not physics maybe?
+				--SetVehicleWheelSize(v.entity,GetVehicleWheelSize(v.entity)) -- trick to avoid stance bug tricking the system or game that this is all visual only not physics maybe?
 				SetVehicleWheelYRotation(v.entity,0,tonumber(v['wheelsetting']['wheelrotationfront'].wheel0))
 				SetVehicleWheelYRotation(v.entity,1,tonumber(v['wheelsetting']['wheelrotationfront'].wheel1))
 				SetVehicleWheelYRotation(v.entity,2,tonumber(v['wheelsetting']['wheelrotationrear'].wheel2))
 				SetVehicleWheelYRotation(v.entity,3,tonumber(v['wheelsetting']['wheelrotationrear'].wheel3))
 			end
-			if not DoesEntityExist(v.entity) then
-				vehiclesinarea[k] = nil
+			if not exist then
+				if vehiclesinarea[v.plate] then vehiclesinarea[v.plate] = nil end
+				if cachedata[i] then cachedata[i] = nil end
 			end
 		end
 		Wait(sleep)
