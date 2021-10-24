@@ -68,6 +68,11 @@ or the vehicle must have a installed stancer kit)
 	exports.renzu_stancer:OpenStancer()
 ```
 # FAQ
+- is the stance or wheel setting is saved even if i restart the server?
+```
+	yes data is save to database and attached to vehicle plate as a unique identifier
+```
+
 - when the data is being saved to Database?
 ```
 When you delete the vehicle or store in garage
