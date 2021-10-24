@@ -290,12 +290,6 @@ CreateThread(function()
 			if not DoesEntityExist(v.entity) then
 				local plate = v.plate
 				plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
-				for k2,v2 in ipairs(cachedata) do
-					if v2.plate == plate then
-						cachedata[k2] = nil
-						table.remove(cachedata,k2)
-					end
-				end
 				vehiclesinarea[plate] = nil
 				--table.remove(vehiclesinarea,k)
 				--print("entity deleted removed from cache", plate)
@@ -314,7 +308,6 @@ CreateThread(function()
 			--local nearactivate = v and v.speed <= 0.0 and not v.wheeledit and v.dist < 20 and v ~= nil and v['wheelsetting'] ~= nil
 			local activate = v and not v.wheeledit and v.dist < 100 and v ~= nil and v['wheelsetting'] ~= nil
 			--print(v.speed , v.wheeledit , v.dist , v , v['wheelsetting'])
-			if sleep == 11 then sleep = 11 end
 			if activate then
 				--print("stance")
 				sleep = 11
@@ -328,6 +321,9 @@ CreateThread(function()
 				SetVehicleWheelYRotation(v.entity,1,tonumber(v['wheelsetting']['wheelrotationfront'].wheel1))
 				SetVehicleWheelYRotation(v.entity,2,tonumber(v['wheelsetting']['wheelrotationrear'].wheel2))
 				SetVehicleWheelYRotation(v.entity,3,tonumber(v['wheelsetting']['wheelrotationrear'].wheel3))
+			end
+			if not DoesEntityExist(v.entity) then
+				vehiclesinarea[k] = nil
 			end
 		end
 		Wait(sleep)
