@@ -71,20 +71,20 @@
       
       .score {
         text-align: center;
-    display: inline-block;
-    font-family: "proxima-nova", sans-serif;
-    font-size: 1em;
-    /* font-weight: bold; */
-    background: #2E2E2E;
-    color: #fff;
-    border-radius: 8px;
-    height: 34px;
-    padding-top: 3px;
-    position: absolute;
-    top: 12px;
-    right: -5px;
-    margin-left: 10px;
-    padding: 5px;
+        display: inline-block;
+        font-family: "proxima-nova", sans-serif;
+        font-size: 1em;
+        /* font-weight: bold; */
+        background: #2E2E2E;
+        color: #fff;
+        border-radius: 8px;
+        height: 34px;
+        padding-top: 3px;
+        position: absolute;
+        top: 5px;
+        right: -5px;
+        margin-left: 10px;
+        padding: 5px;
       }
       
       
@@ -111,8 +111,8 @@
       label {
         font-family: "proxima-nova", sans-serif;
         display: inline-block;
-        margin-bottom: 9px;
-        margin-top: 14px;
+        margin-bottom: 7px;
+        margin-top: 8px;
       }
       
       hr {
