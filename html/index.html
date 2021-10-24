@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <title>Renzu Stancer</title>
+    <body>
+      <div id="container" style="display:none;">
+        <form>
+          <h1>Stancer</h1>
+          <hr>
+          <div id="heightd" class="perf">
+            <label for="height">Height</label>
+            <input type="range" id="height" name="height" step=0.01 min=0 max=20 value=0>
+            <div class="score" id="ratingOne">0</div>
+          </div>
+    
+          <div id="wheelofdiv" class="perf">
+            <label for="wheelof">Wheel Offset Front</label>
+            <input type="range" id="wheelof" name="wheelof" step=0.1 min=0 max=10 value=0>
+            <div class="score" id="ratingTwo">0</div>
+          </div>
+    
+          <div id="wheelordiv" class="perf">
+            <label for="wheelor">Wheel Offset Rear</label>
+            <input type="range" id="wheelor" name="wheelor" step=0.1 min=0 max=10 value=0>
+            <div class="score" id="ratingThree">0</div>
+          </div>
+
+          <div id="wheelrfdiv" class="perf">
+            <label for="wheelrf">Wheel Rotation Front</label>
+            <input type="range" id="wheelrf" name="wheelrf" step=0.1 min=0 max=10 value=0>
+            <div class="score" id="ratingThree">0</div>
+          </div>
+
+          <div id="wheelrrdiv" class="perf">
+            <label for="wheelrr">Wheel Rotaion Rear</label>
+            <input type="range" id="wheelrr" name="wheelrr" step=0.1 min=0 max=10 value=0>
+            <div class="score" id="ratingThree">0</div>
+          </div>
+          <input id="close" type="submit" value="SAVE">
+        </form>
+      </div>
+      <script src='script.js'></script>
+    </body>
+  </body>
+</html>
