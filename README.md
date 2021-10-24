@@ -12,6 +12,11 @@
 - One Sync State Bag system to avoid callbacks and triggerevents for data sharing from client to server.
 - NUI Based and User Friendly Interface.
 
+# Image
+![image](https://user-images.githubusercontent.com/82306584/138594316-54f0b7ee-a20c-4d6e-9186-983409461ebb.png)
+![image](https://user-images.githubusercontent.com/82306584/138594321-f4467b1f-19fd-4ce3-99a7-dc99243f7f3b.png)
+
+
 # Install
 - Installation:
 - Drag renzu_nitro to your resource folder and start at server.cfg
@@ -34,7 +39,7 @@
 # dependency 
 - ESX,QBCORE
 
-# Exports
+# Exports for advanced usage
 
 - Server Exports
 
@@ -67,4 +72,13 @@ or the vehicle must have a installed stancer kit)
 ```
 	exports.renzu_stancer:OpenStancer()
 ```
+# FAQ
+- is the stance or wheel setting is saved even if i restart the server?
+```
+	yes data is save to database and attached to vehicle plate as a unique identifier
+```
 
+- when the data is being saved to Database?
+```
+When you delete the vehicle or store in garage
+```
