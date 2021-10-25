@@ -13,7 +13,6 @@ Citizen.CreateThread(function()
     stancer[v.plate].plate = v.plate
     stancer[v.plate].stancer = json.decode(v.setting)
     stancer[v.plate].online = false
-    print(stancer[v.plate].stancer,v.plate,' a'..v.plate..'a')
   end
 
   for k,v in ipairs(GetAllVehicles()) do
@@ -124,7 +123,6 @@ AddEventHandler('entityCreated', function(entity)
     local plate = GetVehicleNumberPlateText(entity)
     if stancer[plate] and stancer[plate].stancer then
       local ent = Entity(entity).state
-      print(stancer[plate].stancer,'gago')
       ent.stancer = stancer[plate].stancer
       stancer[plate].online = true
     end
@@ -137,7 +135,6 @@ AddEventHandler('entityRemoved', function(entity)
     local ent = Entity(entity).state
     if ent.stancer then
       local plate = GetVehicleNumberPlateText(entity)
-      print(plate)
       stancer[plate].online = false
       stancer[plate].stancer = ent.stancer
       SaveStancer({plate = plate, setting = stancer[plate].stancer})
