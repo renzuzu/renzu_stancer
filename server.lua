@@ -119,7 +119,7 @@ end)
 
 AddEventHandler('entityCreated', function(entity)
   local entity = entity
-  if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 then
+  if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 and GetEntityType(entity) == 2 then
     Wait(4000)
     local plate = GetVehicleNumberPlateText(entity)
     if stancer[plate] and stancer[plate].stancer then
@@ -132,7 +132,7 @@ end)
 
 AddEventHandler('entityRemoved', function(entity)
   local entity = entity
-  if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 then
+  if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 and GetEntityType(entity) == 2 then
     local ent = Entity(entity).state
     if ent.stancer then
       local plate = GetVehicleNumberPlateText(entity)
