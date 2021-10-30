@@ -435,7 +435,7 @@ function OpenStancer()
 		})
 		Wait(500)
 		SetNuiFocus(carcontrol,carcontrol)
-		SetNuiFocusKeepInput(carcontrol)
+		SetNuiFocusKeepInput(true)
 		isbusy = false
 		CreateThread(function()
 			while carcontrol do
@@ -459,8 +459,10 @@ exports('OpenStancer', function()
 end)
 
 function whileinput()
-	DisableControlAction(1, 1, true)
-	DisableControlAction(1, 2, true)
+	if Config.FixedCamera then
+		DisableControlAction(1, 1, true)
+		DisableControlAction(1, 2, true)
+	end
 	DisableControlAction(1, 18, true)
 	DisableControlAction(1, 68, true)
 	DisableControlAction(1, 69, true)
