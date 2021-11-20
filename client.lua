@@ -286,7 +286,7 @@ CreateThread(function()
 			local activate = v and not v.wheeledit and v.dist < 100 and v['wheelsetting']
 			local exist = DoesEntityExist(v.entity)
 			if activate and exist then
-				sleep = 11
+				sleep = 1
 				--SetVehicleWheelWidth(v.entity,0.7) -- trick to avoid stance bug
 				SetVehicleWheelXOffset(v.entity,0,tonumber(v['wheelsetting']['wheeloffsetfront'].wheel0))
 				SetVehicleWheelXOffset(v.entity,1,tonumber(v['wheelsetting']['wheeloffsetfront'].wheel1))
