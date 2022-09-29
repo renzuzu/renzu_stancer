@@ -92,6 +92,17 @@ function setShowCarcontrol(table) {
                 post("setvehiclewheelrotationrear",{val:event.target.value})
             });
         });
+		
+		const wheelwidth = document.querySelectorAll('#wheelwdiv');
+        Array.prototype.forEach.call(wheelwidth, slider => {
+            const val = table.rotation[1]
+            slider.querySelector('input').value = val.toFixed(1)
+            slider.querySelector('div').innerHTML = val.toFixed(1)
+            slider.querySelector('input').addEventListener('input', event => {
+                slider.querySelector('div').innerHTML = event.target.value
+                post("setvehiclewheelwidth",{val:event.target.value})
+            });
+        });
     }
 }
 

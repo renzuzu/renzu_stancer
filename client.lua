@@ -238,6 +238,20 @@ RegisterNUICallback('setvehiclewheelrotationrear', function(data, cb)
 	cb(true)
 end)
 
+RegisterNUICallback('setvehiclewheelwidth', function(data, cb)
+	vehicle = getveh()
+	plate = tostring(GetVehicleNumberPlateText(vehicle))
+	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
+    if vehicle ~= nil and vehicle ~= 0 then
+		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
+		local val = tonumber(data.val)
+		print(val)
+		SetVehicleWheelWidth(vehicle,val)
+		wheelsettings[plate]['wheelwidth'] = val
+    end
+	cb(true)
+end)
+
 RegisterNetEvent("renzu_stancer:openstancer")
 AddEventHandler("renzu_stancer:openstancer", function(vehicle,val,coords)
 	OpenStancer()
@@ -287,7 +301,7 @@ CreateThread(function()
 			local exist = DoesEntityExist(v.entity)
 			if activate and exist then
 				sleep = 1
-				--SetVehicleWheelWidth(v.entity,0.7) -- trick to avoid stance bug
+				SetVehicleWheelWidth(v.entity,tonumber(v['wheelsetting']['wheelwidth'])) -- trick to avoid stance bug
 				SetVehicleWheelXOffset(v.entity,0,tonumber(v['wheelsetting']['wheeloffsetfront'].wheel0))
 				SetVehicleWheelXOffset(v.entity,1,tonumber(v['wheelsetting']['wheeloffsetfront'].wheel1))
 				SetVehicleWheelXOffset(v.entity,2,tonumber(v['wheelsetting']['wheeloffsetrear'].wheel2))
@@ -364,6 +378,9 @@ RegisterNUICallback('wheelsetting', function(data, cb)
 	if wheelsettings[plate]['wheelrotationrear'].wheel3 == nil then
 		wheelsettings[plate]['wheelrotationrear'].wheel3 = GetVehicleWheelYRotation(vehicle,3)
 	end
+	if wheelsettings[plate]['wheelwidth'] == nil then
+		wheelsettings[plate]['wheelwidth'] = tonumber(GetVehicleWheelWidth(vehicle))
+	end
 	veh_stats[plate]['wheelsetting'] = wheelsettings[plate]
 	--end
 	veh_stats[plate].height = vehicle_height
@@ -374,6 +391,7 @@ RegisterNUICallback('wheelsetting', function(data, cb)
 		veh_stats[plate].wheeledit = false
 		veh_stats[plate].heightdata = ent.stancer.heightdata
 		ent:set('stancer', veh_stats[plate], true)
+		TriggerEvent("stancer")
 		Notify('Vehicle Wheel Data is Saved')
 	end
 	cb(true)

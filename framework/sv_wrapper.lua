@@ -1,12 +1,10 @@
 function Initialized()
-	print("GAGO")
 	if Config.Framework == 'ESX' then
-		ESX = nil
-		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+		ESX = exports['es_extended']:getSharedObject()
 		QBCore = true
 		RegisterUsableItem = ESX.RegisterUsableItem
 	elseif Config.Framework == 'QBCORE' then
-		QBCore = exports['qb-core']:GetSharedObject()
+		QBCore = exports['qb-core']:GetCoreObject()
 		ESX = true
 		RegisterUsableItem = QBCore.Functions.CreateUseableItem
 	else
@@ -76,7 +74,7 @@ end
 function SqlFunc(plugin,type,query,var)
 	local wait = promise.new()
     if type == 'fetchAll' and plugin == 'mysql-async' then
-		    MySQL.Async.fetchAll(query, var, function(result)
+		    MySQL.query(query, var, function(result)
             wait:resolve(result)
         end)
     end
@@ -96,12 +94,12 @@ function SqlFunc(plugin,type,query,var)
         end)
     end
     if type == 'execute' and plugin == 'oxmysql' then
-        exports.oxmysql:execute(query, var, function(result)
+        exports.oxmysql:query(query, var, function(result)
             wait:resolve(result)
         end)
     end
     if type == 'fetchAll' and plugin == 'oxmysql' then
-		exports['oxmysql']:fetch(query, var, function(result)
+		exports.oxmysql:query(query, var, function(result)
 			wait:resolve(result)
 		end)
     end
