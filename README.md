@@ -6,6 +6,7 @@
 - Multiple Framework (QBCORE, ESX, Standalone)
 - Adjustable Wheel Offsets and Rotation ( Stancer )
 - Adjustable Vehicle Suspension Height
+- Adjustable Wheel Width
 - Fully Server Sync (One Sync and Infinity only)
 - Optimized System (Nearby Vehicles are only looped in client)
 - Data is Saved to Database (Attached to Plate)
