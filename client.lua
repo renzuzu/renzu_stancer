@@ -248,6 +248,10 @@ RegisterNUICallback('setvehiclewheelwidth', function(data, cb)
 		print(val)
 		SetVehicleWheelWidth(vehicle,val)
 		wheelsettings[plate]['wheelwidth'] = val
+		wheeledit = true
+		if vehiclesinarea[plate] ~= nil then
+			vehiclesinarea[plate].wheeledit = true
+		end
     end
 	cb(true)
 end)
