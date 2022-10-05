@@ -42,6 +42,7 @@ ReformatStancer = function(stancer)
             data[k][k1][tonumber(k2)] = v
           end
         else
+          if data[k][k1] == nil then data[k][k1] = {} end
           data[k][k1] = v
         end
       end
