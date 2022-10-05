@@ -41,6 +41,8 @@ ReformatStancer = function(stancer)
             if data[k][k1] == nil then data[k][k1] = {} end
             data[k][k1][tonumber(k2)] = v
           end
+        else
+          data[k][k1] = v
         end
       end
     else
@@ -139,7 +141,7 @@ end)
 
 AddEventHandler('entityCreated', function(entity)
   local entity = entity
-  Wait(4000)
+  Wait(1000)
   if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 and GetEntityType(entity) == 2 then
     local plate = GetVehicleNumberPlateText(entity)
     if stancer[plate] and stancer[plate].stancer then

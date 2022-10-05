@@ -110,7 +110,6 @@ end
 RegisterNUICallback('setvehicleheight', function(data, cb)
 	vehicle = getveh()
     if vehicle ~= nil and vehicle ~= 0 and not busyairsus then
-		print("HEIGHT")
 		busyairsus = true
 		TriggerServerEvent("renzu_stancer:airsuspension",VehToNet(vehicle), data.val, GetEntityCoords(vehicle))
     end
@@ -258,7 +257,7 @@ AddEventHandler("renzu_stancer:openstancer", function(vehicle,val,coords)
 	OpenStancer()
 end)
 
-Stancers = {}
+local Stancers = {}
 local c = 0
 AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], function(bagName, key, value, _unused, replicated)
 	Wait(0)
@@ -269,10 +268,12 @@ AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], funct
 	Stancers[c] = vehicle
 	SetVehicleSuspensionHeight(vehicle,value.height)
 	SetStanceSetting(vehicle,value['wheelsetting'])
+	SetVehicleWheelWidth(vehicle,tonumber(value['wheelsetting']['wheelwidth']))
 end)
 
 local cachedata = {}
 local cache = {}
+local justseated = false
 CreateThread(function()
 	while true do
 		local ped = PlayerPedId()
@@ -282,6 +283,7 @@ CreateThread(function()
 		for k,v in pairs(vehiclesinarea) do
 			table.insert(cachedata,v)
 		end
+		if not IsPedInAnyVehicle(ped) then justseated = false end
 		for k,v in pairs(Stancers) do
 			local ent = Entity(v).state
 			local dist = #(GetEntityCoords(v) - coord)
@@ -295,18 +297,35 @@ CreateThread(function()
 					vehiclesinarea[plate]['wheeledit'] = ent.stancer.wheeledit
 					SetVehicleSuspensionHeight(v,ent.stancer.height)
 					SetStanceSetting(v,ent.stancer['wheelsetting'])
+					SetHeightProperly(v,ent)
 				end
 			elseif DoesEntityExist(v) and dist > 100 and ent.stancer and vehiclesinarea[plate] then
 				vehiclesinarea[plate] = nil
-			elseif not DoesEntityExist(v) and vehiclesinarea[plate] then
-				vehiclesinarea[plate] = nil
+			elseif not DoesEntityExist(v) then
+				if vehiclesinarea[plate] then
+					vehiclesinarea[plate] = nil
+				end
 				Stancers[k] = nil
+				print('removed',plate)
 			end
 		end
 		cache = cachedata
 		Wait(2000)
 	end
 end)
+
+SetHeightProperly = function(v,ent)
+	if GetPedInVehicleSeat(v,-1) == PlayerPedId() and not justseated then
+		justseated = true
+		local c = 0
+		while justseated and c < 400 do
+			Wait(1)
+			c = c + 1
+			SetVehicleSuspensionHeight(v,ent.stancer.height)
+		end
+		SetVehicleSuspensionHeight(v,ent.stancer.height)
+	end
+end
 
 SetStanceSetting = function(entity,data)
 	--SetVehicleWheelSize(v.entity,GetVehicleWheelSize(v.entity)) -- trick to avoid stance bug tricking the system or game that this is all visual only not physics maybe?
@@ -401,7 +420,6 @@ CreateThread(function()
 end)
 
 RegisterNUICallback('closecarcontrol', function(data, cb)
-	print("closing")
 	carcontrol = false
 	SendNUIMessage({
 		type = "show",
@@ -419,7 +437,6 @@ end
 
 function OpenStancer()
 	vehicle = getveh()
-	print(vehicle)
 	local ent = Entity(vehicle).state
 	if Config.Framework == 'Standalone' and not ent.stancer then
 		TriggerServerEvent('renzu_stancer:addstancer')
