@@ -7,11 +7,13 @@ Initialized()
 stancer = {}
 
 Citizen.CreateThread(function()
-  local ret = SqlFunc(Config.Mysql,'fetchAll','SELECT * FROM renzu_stancer', {})
+  Wait(1000)
+  --DeleteResourceKvp('stancer')
+  local ret = json.decode(GetResourceKvpString('stancer') or '[]') or {}
   for k,v in pairs(ret) do
     if stancer[v.plate] == nil then stancer[v.plate] = {} end
     stancer[v.plate].plate = v.plate
-    stancer[v.plate].stancer = json.decode(v.setting)
+    stancer[v.plate].stancer = v.setting
     stancer[v.plate].online = false
   end
 
@@ -20,26 +22,44 @@ Citizen.CreateThread(function()
     if stancer[plate] and plate == stancer[plate].plate then
       if stancer[plate].stancer then
         local ent = Entity(v).state
-        ent.stancer = stancer[plate].stancer
-        ent.online = true
+        local data = ReformatStancer(stancer[plate].stancer)
+        ent:set('stancer', data, true)
+        ent:set('online', true, true)
       end
     end
   end
 end)
 
+ReformatStancer = function(stancer)
+  local data = {}
+  for k,v in pairs(stancer) do
+    if k == 'wheelsetting' then
+      for k1,v in pairs(v) do
+        if type(v) == 'table' then
+          for k2,v in pairs(v) do
+            if data[k] == nil then data[k] = {} end
+            if data[k][k1] == nil then data[k][k1] = {} end
+            data[k][k1][tonumber(k2)] = v
+          end
+        end
+      end
+    else
+      data[k] = v
+    end
+  end
+  return data
+end
+
 function SaveStancer(ob)
-    local plate = string.gsub(ob.plate, '^%s*(.-)%s*$', '%1')
-    local result = SqlFunc(Config.Mysql,'fetchAll','SELECT * FROM renzu_stancer WHERE TRIM(plate) = @plate', {['@plate'] = plate})
-    if result[1] == nil then
-        SqlFunc(Config.Mysql,'execute','INSERT INTO renzu_stancer (plate, setting) VALUES (@plate, @stancer)', {
-            ['@plate']   = ob.plate,
-            ['@stancer']   = '[]',
-        })
-    elseif result[1] then
-        SqlFunc(Config.Mysql,'execute','UPDATE renzu_stancer SET setting = @setting WHERE TRIM(plate) = @plate', {
-          ['@plate']   = plate,
-          ['@setting']   = json.encode(ob.setting),
-        })
+    local plate = ob.plate
+    local data = json.decode(GetResourceKvpString('stancer') or '[]') or {}
+    local result = data[plate]
+    if result == nil then
+      data[plate] = {}
+      SetResourceKvp('stancer',json.encode(data))
+    elseif result then
+        data[plate] = {plate = ob.plate, setting = ob.setting}
+        SetResourceKvp('stancer',json.encode(data))
     end
 end
 
@@ -124,7 +144,7 @@ AddEventHandler('entityCreated', function(entity)
     local plate = GetVehicleNumberPlateText(entity)
     if stancer[plate] and stancer[plate].stancer then
       local ent = Entity(entity).state
-      ent.stancer = stancer[plate].stancer
+      ent.stancer = ReformatStancer(stancer[plate].stancer)
       stancer[plate].online = true
     end
   end
@@ -140,6 +160,20 @@ AddEventHandler('entityRemoved', function(entity)
       stancer[plate].stancer = ent.stancer
       SaveStancer({plate = plate, setting = stancer[plate].stancer})
     end
+  end
+end)
+
+RegisterNetEvent("renzu_stancer:save")
+AddEventHandler("renzu_stancer:save", function(stance)
+  local vehicle = GetVehiclePedIsIn(GetPlayerPed(source),false)
+  local ent = Entity(vehicle).state
+  if ent.stancer then
+    local plate = GetVehicleNumberPlateText(vehicle)
+    local data = json.decode(GetResourceKvpString('stancer') or '[]') or {}
+    if not stancer[plate] then stancer[plate] = {} end
+    stancer[plate].stancer = stance
+    data[plate] = {plate = plate, setting = stance}
+    SetResourceKvp('stancer',json.encode(data))
   end
 end)
 

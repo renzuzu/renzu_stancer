@@ -15,7 +15,7 @@ AddEventHandler("renzu_stancer:airsuspension", function(vehicle,val,coords)
 	CreateThread(function()
 		Wait(math.random(1,500))
 		if v ~= 0 and #(coords - GetEntityCoords(PlayerPedId())) < 50 and not busyplate[plate] then
-			local plate = string.gsub(GetVehicleNumberPlateText(v), '^%s*(.-)%s*$', '%1')
+			local plate = GetVehicleNumberPlateText(v)
 			busyplate[plate] = true
 			if vehiclesinarea[plate] ~= nil then
 				vehiclesinarea[plate].wheeledit = true
@@ -28,7 +28,6 @@ AddEventHandler("renzu_stancer:airsuspension", function(vehicle,val,coords)
 			data.val = val
 			local ent = Entity(v).state
 			plate2 = tostring(GetVehicleNumberPlateText(v))
-			plate2 = string.gsub(plate2, '^%s*(.-)%s*$', '%1')
 			veh_stats[plate2] = ent.stancer
 			veh_stats[plate2].wheeledit = true
 			veh_stats[plate2].heightdata = data.val
@@ -120,12 +119,13 @@ end)
 
 function SetWheelOffsetFront(vehicle, val)
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
-	SetVehicleWheelXOffset(vehicle,0,tonumber("-0."..val..""))
-	SetVehicleWheelXOffset(vehicle,1,tonumber("0."..val..""))
 	if wheelsettings[plate]['wheeloffsetfront'] == nil then wheelsettings[plate]['wheeloffsetfront'] = {} end
-	wheelsettings[plate]['wheeloffsetfront'].wheel0 = tonumber("-0."..val.."")
-	wheelsettings[plate]['wheeloffsetfront'].wheel1 = tonumber("0."..val.."")
+	for i = 0 , 1 do
+		local k
+		if i == 0 then k = '-0' else k = '0' end
+		SetVehicleWheelXOffset(vehicle,i,tonumber(""..k.."."..val..""))
+		wheelsettings[plate]['wheeloffsetfront'][i] = tonumber(""..k.."."..val.."")
+	end
 	wheeledit = true
 	if vehiclesinarea[plate] ~= nil then
 		vehiclesinarea[plate].wheeledit = true
@@ -139,7 +139,6 @@ end)
 RegisterNUICallback('setvehiclewheeloffsetfront', function(data, cb)
 	vehicle = getveh()
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
     if vehicle ~= nil and vehicle ~= 0 then
 		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
 		local val = round(data.val * 100)
@@ -150,12 +149,13 @@ end)
 
 function SetWheelOffsetRear(vehicle, val)
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
-	SetVehicleWheelXOffset(vehicle,2,tonumber("-0."..val..""))
-	SetVehicleWheelXOffset(vehicle,3,tonumber("0."..val..""))
 	if wheelsettings[plate]['wheeloffsetrear'] == nil then wheelsettings[plate]['wheeloffsetrear'] = {} end
-	wheelsettings[plate]['wheeloffsetrear'].wheel2 = tonumber("-0."..val.."")
-	wheelsettings[plate]['wheeloffsetrear'].wheel3 = tonumber("0."..val.."")
+	for i = 2 , 3 do
+		local k
+		if i == 2 then k = '-0' else k = '0' end
+		SetVehicleWheelXOffset(vehicle,i,tonumber(""..k.."."..val..""))
+		wheelsettings[plate]['wheeloffsetrear'][i] = tonumber(""..k.."."..val.."")
+	end
 	wheeledit = true
 	if vehiclesinarea[plate] ~= nil then
 		vehiclesinarea[plate].wheeledit = true
@@ -169,7 +169,6 @@ end)
 RegisterNUICallback('setvehiclewheeloffsetrear', function(data, cb)
 	vehicle = getveh()
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
     if vehicle ~= nil and vehicle ~= 0 then
 		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
 		local val = round(data.val * 100)
@@ -180,12 +179,13 @@ end)
 
 function SetWheelRotationFront(vehicle, val)
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
-	SetVehicleWheelYRotation(vehicle,0,tonumber("-0."..val..""))
-	SetVehicleWheelYRotation(vehicle,1,tonumber("0."..val..""))
 	if wheelsettings[plate]['wheelrotationfront'] == nil then wheelsettings[plate]['wheelrotationfront'] = {} end
-	wheelsettings[plate]['wheelrotationfront'].wheel0 = tonumber("-0."..val.."")
-	wheelsettings[plate]['wheelrotationfront'].wheel1 = tonumber("0."..val.."")
+	for i = 0 , 1 do
+		local k
+		if i == 0 then k = '-0' else k = '0' end
+		SetVehicleWheelYRotation(vehicle,i,tonumber(""..k.."."..val..""))
+		wheelsettings[plate]['wheelrotationfront'][i] = tonumber(""..k.."."..val.."")
+	end
 	wheeledit = true
 	if vehiclesinarea[plate] ~= nil then
 		vehiclesinarea[plate].wheeledit = true
@@ -199,7 +199,6 @@ end)
 RegisterNUICallback('setvehiclewheelrotationfront', function(data, cb)
 	vehicle = getveh()
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
     if vehicle ~= nil and vehicle ~= 0 then
 		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
 		local val = round(data.val * 100)
@@ -210,12 +209,13 @@ end)
 
 function SetWheelRotationRear(vehicle, val)
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
-	SetVehicleWheelYRotation(vehicle,2,tonumber("-0."..val..""))
-	SetVehicleWheelYRotation(vehicle,3,tonumber("0."..val..""))
 	if wheelsettings[plate]['wheelrotationrear'] == nil then wheelsettings[plate]['wheelrotationrear'] = {} end
-	wheelsettings[plate]['wheelrotationrear'].wheel2 = tonumber("-0."..val.."")
-	wheelsettings[plate]['wheelrotationrear'].wheel3 = tonumber("0."..val.."")
+	for i = 2 , 3 do
+		local k
+		if i == 2 then k = '-0' else k = '0' end
+		SetVehicleWheelYRotation(vehicle,i,tonumber(""..k.."."..val..""))
+		wheelsettings[plate]['wheelrotationrear'][i] = tonumber(""..k.."."..val.."")
+	end
 	wheeledit = true
 	if vehiclesinarea[plate] ~= nil then
 		vehiclesinarea[plate].wheeledit = true
@@ -229,7 +229,6 @@ end)
 RegisterNUICallback('setvehiclewheelrotationrear', function(data, cb)
 	vehicle = getveh()
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
     if vehicle ~= nil and vehicle ~= 0 then
 		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
 		local val = round(data.val * 100)
@@ -241,11 +240,9 @@ end)
 RegisterNUICallback('setvehiclewheelwidth', function(data, cb)
 	vehicle = getveh()
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
     if vehicle ~= nil and vehicle ~= 0 then
 		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
 		local val = tonumber(data.val)
-		print(val)
 		SetVehicleWheelWidth(vehicle,val)
 		wheelsettings[plate]['wheelwidth'] = val
 		wheeledit = true
@@ -261,6 +258,19 @@ AddEventHandler("renzu_stancer:openstancer", function(vehicle,val,coords)
 	OpenStancer()
 end)
 
+Stancers = {}
+local c = 0
+AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], function(bagName, key, value, _unused, replicated)
+	Wait(0)
+	if not value then return end
+    local net = tonumber(bagName:gsub('entity:', ''), 10)
+    local vehicle = NetworkGetEntityFromNetworkId(net)
+	c = c + 1
+	Stancers[c] = vehicle
+	SetVehicleSuspensionHeight(vehicle,value.height)
+	SetStanceSetting(vehicle,value['wheelsetting'])
+end)
+
 local cachedata = {}
 local cache = {}
 CreateThread(function()
@@ -270,24 +280,27 @@ CreateThread(function()
 		local c = 0
 		cachedata = {}
 		for k,v in pairs(vehiclesinarea) do
-			c = c + 1
-			cachedata[c] = v
+			table.insert(cachedata,v)
 		end
-		for k,v in ipairs(GetGamePool('CVehicle')) do
+		for k,v in pairs(Stancers) do
 			local ent = Entity(v).state
 			local dist = #(GetEntityCoords(v) - coord)
-			local plate = string.gsub(tostring(GetVehicleNumberPlateText(v)), '^%s*(.-)%s*$', '%1')
+			local plate = GetVehicleNumberPlateText(v)
 			if DoesEntityExist(v) and dist < 100 and ent.stancer then
-				if not ent.stancer.wheeledit then
+				if not ent.stancer.wheeledit and ent.stancer['wheelsetting'] then
 					if vehiclesinarea[plate] == nil then vehiclesinarea[plate] = {} addtable = true vehiclesinarea[plate]['entity'] = v vehiclesinarea[plate]['plate'] = plate end
 					vehiclesinarea[plate]['wheelsetting'] = ent.stancer['wheelsetting']
 					vehiclesinarea[plate]['speed'] = GetEntitySpeed(v)
 					vehiclesinarea[plate]['dist'] = dist
 					vehiclesinarea[plate]['wheeledit'] = ent.stancer.wheeledit
 					SetVehicleSuspensionHeight(v,ent.stancer.height)
+					SetStanceSetting(v,ent.stancer['wheelsetting'])
 				end
 			elseif DoesEntityExist(v) and dist > 100 and ent.stancer and vehiclesinarea[plate] then
 				vehiclesinarea[plate] = nil
+			elseif not DoesEntityExist(v) and vehiclesinarea[plate] then
+				vehiclesinarea[plate] = nil
+				Stancers[k] = nil
 			end
 		end
 		cache = cachedata
@@ -295,26 +308,31 @@ CreateThread(function()
 	end
 end)
 
+SetStanceSetting = function(entity,data)
+	--SetVehicleWheelSize(v.entity,GetVehicleWheelSize(v.entity)) -- trick to avoid stance bug tricking the system or game that this is all visual only not physics maybe?
+	SetVehicleWheelWidth(entity,tonumber(data['wheelwidth']))
+	for i = 0 , 3 do
+		if i <= 1 then
+			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetfront'][i]))
+			SetVehicleWheelYRotation(entity,i,tonumber(data['wheelrotationfront'][i]))
+		else
+			SetVehicleWheelYRotation(entity,i,tonumber(data['wheelrotationrear'][i]))
+			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetrear'][i]))
+		end
+	end
+end
+
 CreateThread(function()
 	Wait(1000)
 	while true do
 		local sleep = 2000
 		for i = 1, #cache do
 			local v = cache[i]
-			local activate = v and not v.wheeledit and v.dist < 100 and v['wheelsetting']
+			local activate = v and not v.wheeledit and v.dist < 100
 			local exist = DoesEntityExist(v.entity)
-			if activate and exist then
+			if activate and exist and GetEntitySpeed(v.entity) > 1 then
 				sleep = 1
-				SetVehicleWheelWidth(v.entity,tonumber(v['wheelsetting']['wheelwidth'])) -- trick to avoid stance bug
-				SetVehicleWheelXOffset(v.entity,0,tonumber(v['wheelsetting']['wheeloffsetfront'].wheel0))
-				SetVehicleWheelXOffset(v.entity,1,tonumber(v['wheelsetting']['wheeloffsetfront'].wheel1))
-				SetVehicleWheelXOffset(v.entity,2,tonumber(v['wheelsetting']['wheeloffsetrear'].wheel2))
-				SetVehicleWheelXOffset(v.entity,3,tonumber(v['wheelsetting']['wheeloffsetrear'].wheel3))
-				--SetVehicleWheelSize(v.entity,GetVehicleWheelSize(v.entity)) -- trick to avoid stance bug tricking the system or game that this is all visual only not physics maybe?
-				SetVehicleWheelYRotation(v.entity,0,tonumber(v['wheelsetting']['wheelrotationfront'].wheel0))
-				SetVehicleWheelYRotation(v.entity,1,tonumber(v['wheelsetting']['wheelrotationfront'].wheel1))
-				SetVehicleWheelYRotation(v.entity,2,tonumber(v['wheelsetting']['wheelrotationrear'].wheel2))
-				SetVehicleWheelYRotation(v.entity,3,tonumber(v['wheelsetting']['wheelrotationrear'].wheel3))
+				SetStanceSetting(v.entity,cache[i]['wheelsetting'])
 			end
 			if not exist then
 				if vehiclesinarea[v.plate] then vehiclesinarea[v.plate] = nil end
@@ -327,75 +345,46 @@ CreateThread(function()
 end)
 
 RegisterNUICallback('wheelsetting', function(data, cb)
-	vehicle = getveh()
+	vehicle = GetVehiclePedIsIn(PlayerPedId(),false)
 	wheeledit = false
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
-	plate = string.gsub(plate, '^%s*(.-)%s*$', '%1')
-	--get_veh_stats(getveh(), plate)
 	if veh_stats[plate] == nil then veh_stats[plate] = {} end
-	if veh_stats[plate]['wheelsetting'] == nil then
-		veh_stats[plate]['wheelsetting'] = {}
-	end
+	if veh_stats[plate]['wheelsetting'] == nil then veh_stats[plate]['wheelsetting'] = {} end
 	local vehicle_height = GetVehicleSuspensionHeight(vehicle)
-	--for i = 0, numwheel - 1 do
-	--will rewrite later for shorter code
 	if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
-	if wheelsettings[plate]['wheeloffsetfront'] == nil then
-		wheelsettings[plate]['wheeloffsetfront'] = {}
-	end
-	if wheelsettings[plate]['wheeloffsetfront'].wheel0 == nil then
-		wheelsettings[plate]['wheeloffsetfront'].wheel0 = GetVehicleWheelXOffset(vehicle,0)
-	end
-	if wheelsettings[plate]['wheeloffsetfront'].wheel1 == nil then
-		wheelsettings[plate]['wheeloffsetfront'].wheel1 = GetVehicleWheelXOffset(vehicle,1)
-	end
+	if wheelsettings[plate]['wheeloffsetfront'] == nil then wheelsettings[plate]['wheeloffsetfront'] = {} end
+	if wheelsettings[plate]['wheeloffsetrear'] == nil then wheelsettings[plate]['wheeloffsetrear'] = {} end
+	if wheelsettings[plate]['wheelrotationfront'] == nil then wheelsettings[plate]['wheelrotationfront'] = {} end
+	if wheelsettings[plate]['wheelrotationrear'] == nil then wheelsettings[plate]['wheelrotationrear'] = {} end
 
-	if wheelsettings[plate]['wheeloffsetrear'] == nil then
-		wheelsettings[plate]['wheeloffsetrear'] = {}
-	end
-
-	if wheelsettings[plate]['wheeloffsetrear'].wheel2 == nil then
-		wheelsettings[plate]['wheeloffsetrear'].wheel2 = GetVehicleWheelXOffset(vehicle,2)
-	end
-	if wheelsettings[plate]['wheeloffsetrear'].wheel3 == nil then
-		wheelsettings[plate]['wheeloffsetrear'].wheel3 = GetVehicleWheelXOffset(vehicle,3)
-	end
-
-	if wheelsettings[plate]['wheelrotationfront'] == nil then
-		wheelsettings[plate]['wheelrotationfront'] = {}
-	end
-
-	if wheelsettings[plate]['wheelrotationfront'].wheel0 == nil then
-		wheelsettings[plate]['wheelrotationfront'].wheel0 = GetVehicleWheelYRotation(vehicle,0)
-	end
-	if wheelsettings[plate]['wheelrotationfront'].wheel1 == nil then
-		wheelsettings[plate]['wheelrotationfront'].wheel1 = GetVehicleWheelYRotation(vehicle,1)
-	end
-
-	if wheelsettings[plate]['wheelrotationrear'] == nil then
-		wheelsettings[plate]['wheelrotationrear'] = {}
-	end
-
-	if wheelsettings[plate]['wheelrotationrear'].wheel2 == nil then
-		wheelsettings[plate]['wheelrotationrear'].wheel2 = GetVehicleWheelYRotation(vehicle,2)
-	end
-	if wheelsettings[plate]['wheelrotationrear'].wheel3 == nil then
-		wheelsettings[plate]['wheelrotationrear'].wheel3 = GetVehicleWheelYRotation(vehicle,3)
+	for i = 0 , 3 do
+		if i <= 1 then
+			if wheelsettings[plate]['wheeloffsetfront'][i] == nil then
+				wheelsettings[plate]['wheeloffsetfront'][i] = GetVehicleWheelXOffset(vehicle,i)
+			end
+			if wheelsettings[plate]['wheelrotationfront'][i] == nil then
+				wheelsettings[plate]['wheelrotationfront'][i] = GetVehicleWheelYRotation(vehicle,i)
+			end
+		else
+			if wheelsettings[plate]['wheeloffsetrear'][i] == nil then
+				wheelsettings[plate]['wheeloffsetrear'][i] = GetVehicleWheelXOffset(vehicle,i)
+			end
+			if wheelsettings[plate]['wheelrotationrear'][i] == nil then
+				wheelsettings[plate]['wheelrotationrear'][i] = GetVehicleWheelYRotation(vehicle,i)
+			end
+		end
 	end
 	if wheelsettings[plate]['wheelwidth'] == nil then
 		wheelsettings[plate]['wheelwidth'] = tonumber(GetVehicleWheelWidth(vehicle))
 	end
 	veh_stats[plate]['wheelsetting'] = wheelsettings[plate]
-	--end
 	veh_stats[plate].height = vehicle_height
     if vehicle ~= nil and vehicle ~= 0 then
-		--TriggerServerEvent('renzu_hud:savedata', plate, veh_stats[tostring(plate)])
-		print("saving")
 		local ent = Entity(vehicle).state
 		veh_stats[plate].wheeledit = false
 		veh_stats[plate].heightdata = ent.stancer.heightdata
 		ent:set('stancer', veh_stats[plate], true)
-		TriggerEvent("stancer")
+		TriggerServerEvent('renzu_stancer:save',veh_stats[plate])
 		Notify('Vehicle Wheel Data is Saved')
 	end
 	cb(true)
@@ -404,7 +393,6 @@ end)
 
 RegisterCommand(Config.commands, function()
 	OpenStancer()
-	print("car control")
 end, false)
 
 CreateThread(function()
@@ -435,7 +423,7 @@ function OpenStancer()
 	local ent = Entity(vehicle).state
 	if Config.Framework == 'Standalone' and not ent.stancer then
 		TriggerServerEvent('renzu_stancer:addstancer')
-		while not ent.stancer do Wait(200) end
+		while not ent.stancer do Wait(1) end
 	end
 	if busy or not ent.stancer then Notify('No Stancer Kit Install') return end
 	local cache = ent.stancer

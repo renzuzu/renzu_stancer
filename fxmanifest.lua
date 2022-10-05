@@ -1,7 +1,9 @@
-fx_version 'cerulean'
-game 'gta5'
+fx_version   'cerulean'
+use_experimental_fxv2_oal 'yes'
+lua54        'yes'
+game         'gta5'
+use_fxv2_oal 'yes'
 ui_page 'html/index.html'
-lua54 'on'
 
 shared_scripts {
 	"config.lua"
