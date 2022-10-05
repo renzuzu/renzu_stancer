@@ -21,7 +21,6 @@
 # Install
 - Installation:
 - Drag renzu_stancer to your resource folder and start at server.cfg
-- Import stancer.sql
 - ensure renzu_stancer
 
 
