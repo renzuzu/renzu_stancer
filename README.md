@@ -28,10 +28,11 @@
 # Framework Usage: 
 - use item inside vehicle
 - /giveitem 1 stancerkit 1
-- /stancer or F5 (keybind Default)
+- /stance
 
 # Standalone Usage
-- Press F5
+- /stance
+- or Bind this command via Config. default is none
 
 
 # ITEMS
