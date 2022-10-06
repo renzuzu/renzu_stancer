@@ -34,7 +34,7 @@ AddEventHandler("renzu_stancer:airsuspension", function(vehicle,val,coords)
 			ent:set('stancer', veh_stats[plate2], true)
 			if (data.val * 100) < 15 then
 				val = min
-				data.val = data.val - 0.1
+				data.val = data.val - 0.01
 				local good = false
 				count = 0
 				while min > data.val and busyplate[plate] and count < 50 do
