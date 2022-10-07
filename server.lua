@@ -168,7 +168,6 @@ AddEventHandler('entityRemoved', function(entity)
       stancer[plate].online = false
       stancer[plate].stancer = ent.stancer
       SaveStancer({plate = plate, setting = stancer[plate].stancer})
-      servervehicles[plate] = nil
     end
   end
 end)
