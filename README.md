@@ -9,7 +9,7 @@
 - Adjustable Wheel Width
 - Fully Server Sync (One Sync and Infinity only)
 - Optimized System (Nearby Vehicles are only looped in client)
-- Data is Saved to Database (Attached to Plate)
+- Data is Saved to Resource using ResourceKVP
 - One Sync State Bag system to avoid callbacks and triggerevents for data sharing from client to server.
 - NUI Based and User Friendly Interface.
 
