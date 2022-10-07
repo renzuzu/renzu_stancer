@@ -258,31 +258,39 @@ AddEventHandler("renzu_stancer:openstancer", function(vehicle,val,coords)
 end)
 
 local Stancers = {}
-local c = 0
+local cachedata = {}
+local cache = {}
 AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], function(bagName, key, value, _unused, replicated)
 	Wait(0)
 	if not value then return end
     local net = tonumber(bagName:gsub('entity:', ''), 10)
     local vehicle = NetworkGetEntityFromNetworkId(net)
-	c = c + 1
-	Stancers[c] = vehicle
+	local plate = GetVehicleNumberPlateText(vehicle)
+	Stancers[plate] = vehicle
 	SetVehicleSuspensionHeight(vehicle,value.height)
 	SetStanceSetting(vehicle,value['wheelsetting'])
 	SetVehicleWheelWidth(vehicle,tonumber(value['wheelsetting']['wheelwidth']))
+	print('stancer')
+	if vehiclesinarea[plate] == nil then vehiclesinarea[plate] = {} vehiclesinarea[plate]['plate'] = plate end
+	vehiclesinarea[plate]['wheelsetting'] = value['wheelsetting']
+	vehiclesinarea[plate]['speed'] = GetEntitySpeed(vehicle)
+	vehiclesinarea[plate]['entity'] = vehicle
+	vehiclesinarea[plate]['dist'] = #(GetEntityCoords(vehicle) - GetEntityCoords(PlayerPedId()))
+	vehiclesinarea[plate]['wheeledit'] = value.wheeledit
+	for k,v in pairs(vehiclesinarea) do
+		table.insert(cachedata,v)
+	end
+	cache = cachedata
 end)
 
-local cachedata = {}
-local cache = {}
 local justseated = false
 CreateThread(function()
+	Wait(1000)
 	while true do
 		local ped = PlayerPedId()
 		local coord = GetEntityCoords(ped)
 		local c = 0
 		cachedata = {}
-		for k,v in pairs(vehiclesinarea) do
-			table.insert(cachedata,v)
-		end
 		if not IsPedInAnyVehicle(ped) then justseated = false end
 		for k,v in pairs(Stancers) do
 			local ent = Entity(v).state
@@ -308,6 +316,9 @@ CreateThread(function()
 				Stancers[k] = nil
 				print('removed',plate)
 			end
+		end
+		for k,v in pairs(vehiclesinarea) do
+			table.insert(cachedata,v)
 		end
 		cache = cachedata
 		Wait(2000)
@@ -344,12 +355,12 @@ end
 CreateThread(function()
 	Wait(1000)
 	while true do
-		local sleep = 2000
+		local sleep = 1000
 		for i = 1, #cache do
 			local v = cache[i]
 			local activate = v and not v.wheeledit and v.dist < 100
 			local exist = DoesEntityExist(v.entity)
-			if activate and exist and GetEntitySpeed(v.entity) > 1 then
+			if activate and exist then
 				sleep = 1
 				SetStanceSetting(v.entity,cache[i]['wheelsetting'])
 			end
