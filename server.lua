@@ -41,12 +41,13 @@ ReformatStancer = function(stancer)
             if data[k][k1] == nil then data[k][k1] = {} end
             data[k][k1][tonumber(k2)] = v
           end
-        else
+        elseif k and k1 then
+          if data[k] == nil then data[k] = {} end
           if data[k][k1] == nil then data[k][k1] = {} end
           data[k][k1] = v
         end
       end
-    else
+    elseif k then
       data[k] = v
     end
   end
@@ -58,7 +59,7 @@ function SaveStancer(ob)
     local data = json.decode(GetResourceKvpString('stancer') or '[]') or {}
     local result = data[plate]
     if result == nil then
-      data[plate] = {}
+      data[plate] = {plate = ob.plate, setting = ob.setting}
       SetResourceKvp('stancer',json.encode(data))
     elseif result then
         data[plate] = {plate = ob.plate, setting = ob.setting}
@@ -140,6 +141,7 @@ exports('AddStancerKit', function(vehicle)
   return AddStancerKit(vehicle)
 end)
 
+local servervehicles = {}
 AddEventHandler('entityCreated', function(entity)
   local entity = entity
   Wait(1000)
@@ -149,7 +151,11 @@ AddEventHandler('entityCreated', function(entity)
       local ent = Entity(entity).state
       ent.stancer = ReformatStancer(stancer[plate].stancer)
       stancer[plate].online = true
+      if servervehicles[plate] and DoesEntityExist(NetworkGetEntityFromNetworkId(servervehicles[plate])) and GetEntityType(NetworkGetEntityFromNetworkId(servervehicles[plate])) == 2 and servervehicles[GetVehicleNumberPlateText(NetworkGetEntityFromNetworkId(servervehicles[plate]))] then
+        DeleteEntity(NetworkGetEntityFromNetworkId(servervehicles[plate])) -- delete duplicate vehicle with the same plate wandering in the server
+      end
     end
+    servervehicles[plate] = NetworkGetNetworkIdFromEntity(entity)
   end
 end)
 
@@ -162,6 +168,7 @@ AddEventHandler('entityRemoved', function(entity)
       stancer[plate].online = false
       stancer[plate].stancer = ent.stancer
       SaveStancer({plate = plate, setting = stancer[plate].stancer})
+      servervehicles[plate] = nil
     end
   end
 end)
