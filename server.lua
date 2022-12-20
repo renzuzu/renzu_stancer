@@ -9,7 +9,11 @@ stancer = {}
 Citizen.CreateThread(function()
   Wait(1000)
   --DeleteResourceKvp('stancer')
-  local ret = json.decode(GetResourceKvpString('stancer') or '[]') or {}
+  if Config.KVP then
+    local ret = json.decode(GetResourceKvpString('stancer') or '[]') or {}
+  else
+    local ret = SqlFunc(Config.Mysql, 'fetchAll', 'SELECT * FROM renzu_stancer', {})
+  end
   for k,v in pairs(ret) do
     if stancer[v.plate] == nil then stancer[v.plate] = {} end
     stancer[v.plate].plate = v.plate
@@ -55,16 +59,32 @@ ReformatStancer = function(stancer)
 end
 
 function SaveStancer(ob)
-    local plate = ob.plate
-    local data = json.decode(GetResourceKvpString('stancer') or '[]') or {}
-    local result = data[plate]
-    if result == nil then
-      data[plate] = {plate = ob.plate, setting = ob.setting}
-      SetResourceKvp('stancer',json.encode(data))
-    elseif result then
-        data[plate] = {plate = ob.plate, setting = ob.setting}
-        SetResourceKvp('stancer',json.encode(data))
-    end
+	if Config.KVP then
+	    	local plate = ob.plate
+	    	local data = json.decode(GetResourceKvpString('stancer') or '[]') or {}
+	    	local result = data[plate]
+	    	if result == nil then
+	      		data[plate] = {plate = ob.plate, setting = ob.setting}
+	     	 	SetResourceKvp('stancer',json.encode(data))
+	    	elseif result then
+			data[plate] = {plate = ob.plate, setting = ob.setting}
+			SetResourceKvp('stancer',json.encode(data))
+	    	end
+	else
+		local plate = ESX.Math.Trim(ob.plate)
+    		local result = SqlFunc(Config.Mysql, 'fetchAll', 'SELECT * FROM renzu_stancer WHERE TRIM(plate) = @plate', {['@plate'] = plate})
+    		if result[1] == nil then
+      		  	SqlFunc(Config.Mysql, 'execute', 'INSERT INTO renzu_stancer (plate, setting) VALUES (@plate, @stancer)', {
+           		 	['@plate'] = ob.plate,
+           		 	['@stancer'] = '[]',
+       		 })
+    		elseif result[1] then
+			SqlFunc(Config.Mysql, 'execute', 'UPDATE renzu_stancer SET setting = @setting WHERE TRIM(plate) = @plate', {
+				['@plate'] = plate,
+				['@setting'] = json.encode(ob.setting),
+        		})
+		end
+    	end
 end
 
 function firstToUpper(str)
@@ -182,7 +202,11 @@ AddEventHandler("renzu_stancer:save", function(stance)
     if not stancer[plate] then stancer[plate] = {} end
     stancer[plate].stancer = stance
     data[plate] = {plate = plate, setting = stance}
-    SetResourceKvp('stancer',json.encode(data))
+	if Config.KVP then 
+		SetResourceKvp('stancer',json.encode(data)) 
+	else
+		SaveStancer({plate = plate, json.encode(data)})
+	end
   end
 end)
 
