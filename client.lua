@@ -260,9 +260,40 @@ end)
 local Stancers = {}
 local cachedata = {}
 local cache = {}
+
+local callbacks = {}
+callback = function(name,...)
+	callbacks[name] = promise:new()
+	TriggerServerEvent('renzu_stancer:servercallback',name,...)
+	return Citizen.Await(callbacks[name])
+end
+
+RegisterNetEvent('renzu_stancer:servercallback', function(name,data)
+    callbacks[name]:resolve(data)
+end)
+
+AddEventHandler('gameEventTriggered', function (name, args) -- only game build >= 2189
+	if name == 'CEventNetworkPlayerEnteredVehicle' then
+		if args[1] == PlayerId() then
+			local plate = GetVehicleNumberPlateText(args[2])
+			local ent = Entity(args[2]).state
+			local stancerdata = nil
+			print(ent.stancer,vehiclesinarea[plate])
+			if not ent.stancer or ent.stancer and not vehiclesinarea[plate] then
+				stancerdata = callback('stancers',plate)
+			end
+			if stancerdata and DoesEntityExist(args[2]) then
+				stancerdata.r = GetGameTimer()
+				print('setting stancer',stancerdata)
+				ent:set('stancer', stancerdata, true)
+			end
+		end
+	end
+end)
+
 AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], function(bagName, key, value, _unused, replicated)
 	Wait(0)
-	if not value then return end
+	if not value or not value['wheelsetting'] then return end
     local net = tonumber(bagName:gsub('entity:', ''), 10)
     local vehicle = NetworkGetEntityFromNetworkId(net)
 	local plate = GetVehicleNumberPlateText(vehicle)
