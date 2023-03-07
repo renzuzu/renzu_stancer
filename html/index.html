@@ -8,41 +8,47 @@
     <body>
       <div id="container" style="display:none;">
         <form>
-          <h1>Stancer</h1>
+          <h1>Vehicle Stancer</h1>
           <hr>
           <div id="heightd" class="perf">
             <label for="height">Height</label>
-            <input type="range" id="height" name="height" step=0.001 min=0 max=20 value=0>
+            <input type="range" id="height" name="height" step=0.01 min=-35.0 max=10.0 value=0>
             <div class="score" id="ratingOne">0</div>
           </div>
     
           <div id="wheelofdiv" class="perf">
             <label for="wheelof">Wheel Offset Front</label>
-            <input type="range" id="wheelof" name="wheelof" step=0.1 min=0 max=10 value=0>
+            <input type="range" id="wheelof" name="wheelof" step=0.1 min=6 max=10 value=0>
             <div class="score" id="ratingTwo">0</div>
           </div>
     
           <div id="wheelordiv" class="perf">
             <label for="wheelor">Wheel Offset Rear</label>
-            <input type="range" id="wheelor" name="wheelor" step=0.1 min=0 max=10 value=0>
+            <input type="range" id="wheelor" name="wheelor" step=0.1 min=6 max=10 value=0>
             <div class="score" id="ratingThree">0</div>
           </div>
 
           <div id="wheelrfdiv" class="perf">
             <label for="wheelrf">Wheel Rotation Front</label>
-            <input type="range" id="wheelrf" name="wheelrf" step=0.1 min=0 max=10 value=0>
+            <input type="range" id="wheelrf" name="wheelrf" step=0.001 min=-0.65 max=0.05 value=0>
             <div class="score" id="ratingThree">0</div>
           </div>
 
           <div id="wheelrrdiv" class="perf">
-            <label for="wheelrr">Wheel Rotaion Rear</label>
-            <input type="range" id="wheelrr" name="wheelrr" step=0.1 min=0 max=10 value=0>
+            <label for="wheelrr">Wheel Rotation Rear</label>
+            <input type="range" id="wheelrr" name="wheelrr" step=0.001 min=-0.65 max=0.05 value=0>
             <div class="score" id="ratingThree">0</div>
           </div>
 		  
-		  <div id="wheelwdiv" class="perf">
+		      <div id="wheelwdiv" class="perf">
             <label for="wheelw">Wheel Width</label>
-            <input type="range" id="wheelw" name="wheelw" step=0.01 min=0.1 max=5.0 value=0>
+            <input type="range" id="wheelw" name="wheelw" step=0.01 min=0.0 max=1.5 value=0>
+            <div class="score" id="ratingThree">0</div>
+          </div>
+
+          <div id="wheelsdiv" class="perf">
+            <label for="wheels">Wheel Size</label>
+            <input type="range" id="wheels" name="wheels" step=0.01 min=0.0 max=1.0 value=0>
             <div class="score" id="ratingThree">0</div>
           </div>
           <input id="close" type="submit" value="SAVE">

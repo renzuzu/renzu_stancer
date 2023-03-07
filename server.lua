@@ -189,8 +189,3 @@ RegisterNetEvent("renzu_stancer:addstancer") -- Standalone Purpose
 AddEventHandler("renzu_stancer:addstancer",function(vehicle) 
     AddStancerKit(vehicle) 
 end)
-
-RegisterNetEvent("renzu_stancer:airsuspension")
-AddEventHandler("renzu_stancer:airsuspension", function(entity, val, coords)
-    TriggerClientEvent("renzu_stancer:airsuspension", -1, entity, val, coords)
-end)

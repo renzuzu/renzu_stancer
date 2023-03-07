@@ -9,79 +9,6 @@ carcontrol = false
 veh_stats = {}
 local vehiclesinarea = {}
 
-RegisterNetEvent("renzu_stancer:airsuspension")
-AddEventHandler("renzu_stancer:airsuspension", function(vehicle,val,coords)
-	local v = NetToVeh(vehicle)
-	CreateThread(function()
-		Wait(math.random(1,500))
-		if v ~= 0 and #(coords - GetEntityCoords(PlayerPedId())) < 50 and not busyplate[plate] then
-			local plate = GetVehicleNumberPlateText(v)
-			busyplate[plate] = true
-			if vehiclesinarea[plate] ~= nil then
-				vehiclesinarea[plate].wheeledit = true
-			end
-			playsound(GetEntityCoords(v),20,'suspension',1.0)
-			local max = 0
-			local data = {}
-			local min = GetVehicleSuspensionHeight(v)
-			local count = 0
-			data.val = val
-			local ent = Entity(v).state
-			plate2 = tostring(GetVehicleNumberPlateText(v))
-			veh_stats[plate2] = ent.stancer
-			veh_stats[plate2].wheeledit = true
-			veh_stats[plate2].heightdata = data.val
-			ent:set('stancer', veh_stats[plate2], true)
-			if (data.val * 100) < 15 then
-				val = min
-				data.val = data.val - 0.01
-				local good = false
-				count = 0
-				while min > data.val and busyplate[plate] and count < 50 do
-					SetVehicleSuspensionHeight(v,GetVehicleSuspensionHeight(v) - (1.0 * 0.01))
-					min = GetVehicleSuspensionHeight(v)
-					count = count + 1
-					Citizen.Wait(100)
-					good = true
-				end
-				--SetVehicleSuspensionHeight(v,data.val)
-				count = 0
-				while not good and min < data.val and busyplate[plate] and count < 50 do
-					SetVehicleSuspensionHeight(v,GetVehicleSuspensionHeight(v) + (1.0 * 0.01))
-					min = GetVehicleSuspensionHeight(v)
-					count = count + 1
-					Citizen.Wait(100)
-				end
-				SetVehicleSuspensionHeight(v,data.val)
-			else
-				val = min
-				local good = false
-				count = 0
-				while min < data.val and busyplate[plate] and count < 50 do
-					SetVehicleSuspensionHeight(v,GetVehicleSuspensionHeight(v) + (1.0 * 0.01))
-					min = GetVehicleSuspensionHeight(v)
-					count = count + 1
-					Citizen.Wait(100)
-					good = true
-				end
-				--SetVehicleSuspensionHeight(v,data.val)
-				count = 0
-				while not good and min > data.val and busyplate[plate] and count < 50 do
-					SetVehicleSuspensionHeight(v,GetVehicleSuspensionHeight(v) - (1.0 * 0.01))
-					count = count + 1
-					min = GetVehicleSuspensionHeight(v)
-					Citizen.Wait(100)
-				end
-				SetVehicleSuspensionHeight(v,data.val)
-			end
-			--TriggerServerEvent("renzu_hud:airsuspension_state",VehToNet(vehicle), true)
-			busyplate[plate] = false
-			busyairsus = false
-		end
-		return
-	end)
-end)
-
 function getveh()
 	local v = GetVehiclePedIsIn(PlayerPedId(), false)
 	lastveh = GetVehiclePedIsIn(PlayerPedId(), true)
@@ -108,10 +35,15 @@ function getveh()
 end
 
 RegisterNUICallback('setvehicleheight', function(data, cb)
-	vehicle = getveh()
-    if vehicle ~= nil and vehicle ~= 0 and not busyairsus then
-		busyairsus = true
-		TriggerServerEvent("renzu_stancer:airsuspension",VehToNet(vehicle), data.val, GetEntityCoords(vehicle))
+	vehicle = GetVehiclePedIsIn(PlayerPedId())
+    if vehicle ~= nil and vehicle ~= 0 then
+		local ent = Entity(vehicle).state
+		plate2 = tostring(GetVehicleNumberPlateText(vehicle))
+		veh_stats[plate2] = ent.stancer
+		veh_stats[plate2].wheeledit = true
+		veh_stats[plate2].heightdata = data.val
+		--ent:set('stancer', veh_stats[plate2], true)
+		SetVehicleSuspensionHeight(vehicle,data.val)
     end
 	cb(true)
 end)
@@ -179,11 +111,14 @@ end)
 function SetWheelRotationFront(vehicle, val)
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
 	if wheelsettings[plate]['wheelrotationfront'] == nil then wheelsettings[plate]['wheelrotationfront'] = {} end
+	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberFront', tonumber(val))
 	for i = 0 , 1 do
 		local k
-		if i == 0 then k = '-0' else k = '0' end
-		SetVehicleWheelYRotation(vehicle,i,tonumber(""..k.."."..val..""))
-		wheelsettings[plate]['wheelrotationfront'][i] = tonumber(""..k.."."..val.."")
+		if i == 1 then k = '-0' else k = '0' end
+		SetVehicleWheelXOffset(entity,i,GetVehicleWheelXOffset(vehicle,i))
+		--SetVehicleWheelYRotation(vehicle,i,tonumber(""..k.."."..val..""))
+		SetVehicleWheelYRotation(vehicle,i,GetVehicleWheelYRotation(vehicle,i))
+		wheelsettings[plate]['wheelrotationfront'][i] = tonumber(val)
 	end
 	wheeledit = true
 	if vehiclesinarea[plate] ~= nil then
@@ -201,7 +136,8 @@ RegisterNUICallback('setvehiclewheelrotationfront', function(data, cb)
     if vehicle ~= nil and vehicle ~= 0 then
 		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
 		local val = round(data.val * 100)
-		SetWheelRotationFront(vehicle,val)
+		SetWheelRotationFront(vehicle,data.val)
+		SetVehicleFixed(vehicle,true)
     end
 	cb(true)
 end)
@@ -209,12 +145,16 @@ end)
 function SetWheelRotationRear(vehicle, val)
 	plate = tostring(GetVehicleNumberPlateText(vehicle))
 	if wheelsettings[plate]['wheelrotationrear'] == nil then wheelsettings[plate]['wheelrotationrear'] = {} end
+	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear', tonumber(val))
 	for i = 2 , 3 do
 		local k
-		if i == 2 then k = '-0' else k = '0' end
-		SetVehicleWheelYRotation(vehicle,i,tonumber(""..k.."."..val..""))
-		wheelsettings[plate]['wheelrotationrear'][i] = tonumber(""..k.."."..val.."")
+		if i == 3 then k = '-0' else k = '0' end
+		--SetVehicleWheelYRotation(vehicle,i,tonumber(""..k.."."..val..""))
+		SetVehicleWheelXOffset(entity,i,GetVehicleWheelXOffset(vehicle,i))
+		SetVehicleWheelYRotation(vehicle,i,GetVehicleWheelYRotation(vehicle,i))
+		wheelsettings[plate]['wheelrotationrear'][i] = tonumber(val)
 	end
+
 	wheeledit = true
 	if vehiclesinarea[plate] ~= nil then
 		vehiclesinarea[plate].wheeledit = true
@@ -231,7 +171,7 @@ RegisterNUICallback('setvehiclewheelrotationrear', function(data, cb)
     if vehicle ~= nil and vehicle ~= 0 then
 		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
 		local val = round(data.val * 100)
-		SetWheelRotationRear(vehicle,val)
+		SetWheelRotationRear(vehicle,data.val)
     end
 	cb(true)
 end)
@@ -244,6 +184,22 @@ RegisterNUICallback('setvehiclewheelwidth', function(data, cb)
 		local val = tonumber(data.val)
 		SetVehicleWheelWidth(vehicle,val)
 		wheelsettings[plate]['wheelwidth'] = val
+		wheeledit = true
+		if vehiclesinarea[plate] ~= nil then
+			vehiclesinarea[plate].wheeledit = true
+		end
+    end
+	cb(true)
+end)
+
+RegisterNUICallback('setvehiclewheelsize', function(data, cb)
+	vehicle = getveh()
+	plate = tostring(GetVehicleNumberPlateText(vehicle))
+    if vehicle ~= nil and vehicle ~= 0 then
+		if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
+		local val = tonumber(data.val)
+		SetVehicleWheelSize(vehicle,val)
+		wheelsettings[plate]['wheelsize'] = val
 		wheeledit = true
 		if vehiclesinarea[plate] ~= nil then
 			vehiclesinarea[plate].wheeledit = true
@@ -278,7 +234,6 @@ AddEventHandler('gameEventTriggered', function (name, args) -- only game build >
 			local plate = GetVehicleNumberPlateText(args[2])
 			local ent = Entity(args[2]).state
 			local stancerdata = nil
-			print(ent.stancer,vehiclesinarea[plate])
 			if not ent.stancer or ent.stancer and not vehiclesinarea[plate] then
 				stancerdata = callback('stancers',plate)
 			end
@@ -300,8 +255,12 @@ AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], funct
 	Stancers[plate] = vehicle
 	SetVehicleSuspensionHeight(vehicle,value.height)
 	SetStanceSetting(vehicle,value['wheelsetting'])
+	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberFront', value['wheelsetting']['wheelrotationfront'][0])
+	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear', value['wheelsetting']['wheelrotationrear'][2])
 	SetVehicleWheelWidth(vehicle,tonumber(value['wheelsetting']['wheelwidth']))
-	print('stancer')
+	SetVehicleWheelSize(vehicle,tonumber(value['wheelsetting']['wheelsize']))
+	SetReduceDriftVehicleSuspension(vehicle,true)
+	SetVehicleHandlingField(vehicle, 'CCarHandlingData', 'strAdvancedFlags', 0x8000+0x4000000)
 	if vehiclesinarea[plate] == nil then vehiclesinarea[plate] = {} vehiclesinarea[plate]['plate'] = plate end
 	vehiclesinarea[plate]['wheelsetting'] = value['wheelsetting']
 	vehiclesinarea[plate]['speed'] = GetEntitySpeed(vehicle)
@@ -345,7 +304,6 @@ CreateThread(function()
 					vehiclesinarea[plate] = nil
 				end
 				Stancers[k] = nil
-				print('removed',plate)
 			end
 		end
 		for k,v in pairs(vehiclesinarea) do
@@ -370,14 +328,13 @@ SetHeightProperly = function(v,ent)
 end
 
 SetStanceSetting = function(entity,data)
-	--SetVehicleWheelSize(v.entity,GetVehicleWheelSize(v.entity)) -- trick to avoid stance bug tricking the system or game that this is all visual only not physics maybe?
-	SetVehicleWheelWidth(entity,tonumber(data['wheelwidth']))
+	--SetVehicleWheelWidth(entity,tonumber(data['wheelwidth'] or 1.0) + 0.0)
 	for i = 0 , 3 do
 		if i <= 1 then
 			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetfront'][i]))
-			SetVehicleWheelYRotation(entity,i,tonumber(data['wheelrotationfront'][i]))
+			--SetVehicleWheelYRotation(entity,i,tonumber(data['wheelrotationfront'][i]))
 		else
-			SetVehicleWheelYRotation(entity,i,tonumber(data['wheelrotationrear'][i]))
+			--SetVehicleWheelYRotation(entity,i,tonumber(data['wheelrotationrear'][i]))
 			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetrear'][i]))
 		end
 	end
@@ -392,7 +349,7 @@ CreateThread(function()
 			local activate = v and not v.wheeledit and v.dist < 100
 			local exist = DoesEntityExist(v.entity)
 			if activate and exist then
-				sleep = 1
+				sleep = 0
 				SetStanceSetting(v.entity,cache[i]['wheelsetting'])
 			end
 			if not exist then
@@ -424,19 +381,22 @@ RegisterNUICallback('wheelsetting', function(data, cb)
 				wheelsettings[plate]['wheeloffsetfront'][i] = GetVehicleWheelXOffset(vehicle,i)
 			end
 			if wheelsettings[plate]['wheelrotationfront'][i] == nil then
-				wheelsettings[plate]['wheelrotationfront'][i] = GetVehicleWheelYRotation(vehicle,i)
+				wheelsettings[plate]['wheelrotationfront'][i] =  GetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberFront') --GetVehicleWheelYRotation(vehicle,i)
 			end
 		else
 			if wheelsettings[plate]['wheeloffsetrear'][i] == nil then
 				wheelsettings[plate]['wheeloffsetrear'][i] = GetVehicleWheelXOffset(vehicle,i)
 			end
 			if wheelsettings[plate]['wheelrotationrear'][i] == nil then
-				wheelsettings[plate]['wheelrotationrear'][i] = GetVehicleWheelYRotation(vehicle,i)
+				wheelsettings[plate]['wheelrotationrear'][i] = GetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear') -- GetVehicleWheelYRotation(vehicle,i)
 			end
 		end
 	end
 	if wheelsettings[plate]['wheelwidth'] == nil then
 		wheelsettings[plate]['wheelwidth'] = tonumber(GetVehicleWheelWidth(vehicle))
+	end
+	if wheelsettings[plate]['wheelsize'] == nil then
+		wheelsettings[plate]['wheelsize'] = tonumber(GetVehicleWheelSize(vehicle))
 	end
 	veh_stats[plate]['wheelsetting'] = wheelsettings[plate]
 	veh_stats[plate].height = vehicle_height
@@ -485,9 +445,10 @@ function OpenStancer()
 		TriggerServerEvent('renzu_stancer:addstancer')
 		while not ent.stancer do Wait(1) end
 	end
-	print(ent.stancer,'Stancer')
 	if busy or not ent.stancer then Notify('No Stancer Kit Install') return end
 	local cache = ent.stancer
+	SetReduceDriftVehicleSuspension(vehicle,true)
+	SetVehicleHandlingField(vehicle, 'CCarHandlingData', 'strAdvancedFlags', 0x8000+0x4000000)
 	isbusy = true
 	if vehicle  ~= 0 and #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(vehicle )) < 15 and GetVehicleDoorLockStatus(vehicle ) == 1 then
 		carcontrol = not carcontrol
@@ -497,11 +458,17 @@ function OpenStancer()
 		local rotation = {}
 		for i=0, 4 do
 			offset[i] = GetVehicleWheelXOffset(vehicle,i)
-			rotation[i] = GetVehicleWheelYRotation(vehicle,i)
 		end
 		SendNUIMessage({
 			type = "show",
-			content = {bool = carcontrol, offset = offset, rotation = rotation, height = ent.stancer.heightdata}
+			content = {bool = carcontrol, offset = offset, rotation = {
+				rear = GetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear'),
+				front = GetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberFront')
+			}, 
+			height = GetVehicleSuspensionHeight(vehicle),
+			width = GetVehicleWheelWidth(vehicle),
+			size = GetVehicleWheelSize(vehicle)
+			}
 		})
 		Wait(500)
 		SetNuiFocus(carcontrol,carcontrol)
