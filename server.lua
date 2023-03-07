@@ -136,18 +136,7 @@ SetStancer = function(entity)
             local stance = ReformatStancer(stancer[plate].stancer)
             ent:set('stancer',stance,true)
             stancer[plate].online = true
-            if servervehicles[plate] and
-                DoesEntityExist(
-                    NetworkGetEntityFromNetworkId(servervehicles[plate])) and
-                GetEntityType(
-                    NetworkGetEntityFromNetworkId(servervehicles[plate])) == 2 and
-                servervehicles[GetVehicleNumberPlateText(
-                    NetworkGetEntityFromNetworkId(servervehicles[plate]))] then
-                DeleteEntity(
-                    NetworkGetEntityFromNetworkId(servervehicles[plate])) -- delete duplicate vehicle with the same plate wandering in the server
-            end
         end
-        servervehicles[plate] = NetworkGetNetworkIdFromEntity(entity)
     end
 end
 
