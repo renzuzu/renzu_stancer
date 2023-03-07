@@ -127,9 +127,7 @@ registercallback('stancers', function(source,plate)
 	return stancer[plate] and ReformatStancer(stancer[plate].stancer)
 end)
 
-AddEventHandler('entityCreated', function(entity)
-    local entity = entity
-    Wait(1000)
+SetStancer = function(entity)
     if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 and
         GetEntityType(entity) == 2 then
         local plate = GetVehicleNumberPlateText(entity)
@@ -151,6 +149,23 @@ AddEventHandler('entityCreated', function(entity)
         end
         servervehicles[plate] = NetworkGetNetworkIdFromEntity(entity)
     end
+end
+
+AddStateBagChangeHandler('VehicleProperties' --[[key filter]], nil --[[bag filter]], function(bagName, key, value, _unused, replicated)
+	Wait(0)
+	local net = tonumber(bagName:gsub('entity:', ''), 10)
+	if not value then return end
+    local entity = NetworkGetEntityFromNetworkId(net)
+    Wait(1000)
+    if DoesEntityExist(entity) then
+        SetStancer(entity) -- compatibility with ESX onesync server setter vehicle spawn
+    end
+end)
+
+AddEventHandler('entityCreated', function(entity)
+    local entity = entity
+    Wait(1000)
+    SetStancer(entity)
 end)
 
 AddEventHandler('entityRemoved', function(entity)
