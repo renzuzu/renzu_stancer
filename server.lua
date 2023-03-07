@@ -102,7 +102,7 @@ function AddStancerKit(veh)
             stancer[plate].stancer = {}
             stancer[plate].plate = plate
             stancer[plate].online = true
-            ent.stancer = stancer[plate]
+            ent:set('stancer',stancer[plate],true)
             SaveStancer({plate = plate, setting = {}})
         end
     end
@@ -135,7 +135,8 @@ AddEventHandler('entityCreated', function(entity)
         local plate = GetVehicleNumberPlateText(entity)
         if stancer[plate] and stancer[plate].stancer then
             local ent = Entity(entity).state
-            ent.stancer = ReformatStancer(stancer[plate].stancer)
+            local stance = ReformatStancer(stancer[plate].stancer)
+            ent:set('stancer',stance,true)
             stancer[plate].online = true
             if servervehicles[plate] and
                 DoesEntityExist(

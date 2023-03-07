@@ -478,16 +478,17 @@ function Notify(msg)
 end
 
 function OpenStancer()
-	vehicle = getveh()
+	vehicle = GetVehiclePedIsIn(PlayerPedId(),false)
+	if not DoesEntityExist(vehicle) then return end
 	local ent = Entity(vehicle).state
 	if Config.Framework == 'Standalone' and not ent.stancer then
 		TriggerServerEvent('renzu_stancer:addstancer')
 		while not ent.stancer do Wait(1) end
 	end
+	print(ent.stancer,'Stancer')
 	if busy or not ent.stancer then Notify('No Stancer Kit Install') return end
 	local cache = ent.stancer
 	isbusy = true
-	vehicle  = getveh()
 	if vehicle  ~= 0 and #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(vehicle )) < 15 and GetVehicleDoorLockStatus(vehicle ) == 1 then
 		carcontrol = not carcontrol
 		cache.wheeledit = carcontrol
