@@ -251,6 +251,7 @@ AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], funct
 	if not value or not value['wheelsetting'] then return end
     local net = tonumber(bagName:gsub('entity:', ''), 10)
     local vehicle = NetworkGetEntityFromNetworkId(net)
+	if not DoesEntityExist(vehicle) then return end
 	local plate = GetVehicleNumberPlateText(vehicle)
 	Stancers[plate] = vehicle
 	SetVehicleSuspensionHeight(vehicle,value.height)
@@ -328,7 +329,7 @@ SetHeightProperly = function(v,ent)
 end
 
 SetStanceSetting = function(entity,data)
-	--SetVehicleWheelWidth(entity,tonumber(data['wheelwidth'] or 1.0) + 0.0)
+	SetVehicleWheelWidth(entity,tonumber(data['wheelwidth'] or 1.0) + 0.0)
 	for i = 0 , 3 do
 		if i <= 1 then
 			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetfront'][i]))
@@ -345,15 +346,15 @@ CreateThread(function()
 	while true do
 		local sleep = 1000
 		for i = 1, #cache do
-			local v = cache[i]
-			local activate = v and not v.wheeledit and v.dist < 100
-			local exist = DoesEntityExist(v.entity)
+			local data = cache[i] or false
+			local activate = data and not data.wheeledit and data.dist < 100
+			local exist = DoesEntityExist(data.entity)
 			if activate and exist then
 				sleep = 0
-				SetStanceSetting(v.entity,cache[i]['wheelsetting'])
+				SetStanceSetting(data.entity,cache[i]['wheelsetting'])
 			end
 			if not exist then
-				if vehiclesinarea[v.plate] then vehiclesinarea[v.plate] = nil end
+				if vehiclesinarea[v.plate] then vehiclesinarea[data.plate] = nil end
 				if cachedata[i] then cachedata[i] = nil end
 			end
 		end
