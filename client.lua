@@ -348,7 +348,7 @@ CreateThread(function()
 		for i = 1, #cache do
 			local data = cache[i] or false
 			local activate = data and not data.wheeledit and data.dist < 100
-			local exist = DoesEntityExist(data.entity)
+			local exist = data and DoesEntityExist(data.entity)
 			if activate and exist then
 				sleep = 0
 				SetStanceSetting(data.entity,cache[i]['wheelsetting'])
