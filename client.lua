@@ -353,7 +353,7 @@ CreateThread(function()
 				sleep = 0
 				SetStanceSetting(data.entity,cache[i]['wheelsetting'])
 			end
-			if not exist then
+			if not exist and data then
 				if vehiclesinarea[data.plate] then vehiclesinarea[data.plate] = nil end
 				if cachedata[i] then cachedata[i] = nil end
 			end
