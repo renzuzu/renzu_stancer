@@ -249,8 +249,7 @@ end)
 AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], function(bagName, key, value, _unused, replicated)
 	Wait(0)
 	if not value or not value['wheelsetting'] then return end
-    local net = tonumber(bagName:gsub('entity:', ''), 10)
-    local vehicle = NetworkGetEntityFromNetworkId(net)
+    local vehicle = GetEntityFromStateBagName(bagName)
 	if not DoesEntityExist(vehicle) then return end
 	local plate = GetVehicleNumberPlateText(vehicle)
 	Stancers[plate] = vehicle
