@@ -255,8 +255,8 @@ AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], funct
 	Stancers[plate] = vehicle
 	SetVehicleSuspensionHeight(vehicle,value.height)
 	SetStanceSetting(vehicle,value['wheelsetting'])
-	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberFront', value['wheelsetting']['wheelrotationfront'][0])
-	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear', value['wheelsetting']['wheelrotationrear'][2])
+	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberFront', value['wheelsetting']['wheelrotationfront']['0'])
+	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear', value['wheelsetting']['wheelrotationrear']['2'])
 	SetVehicleWheelWidth(vehicle,tonumber(value['wheelsetting']['wheelwidth']))
 	SetVehicleWheelSize(vehicle,tonumber(value['wheelsetting']['wheelsize']))
 	SetReduceDriftVehicleSuspension(vehicle,true)
@@ -331,11 +331,11 @@ SetStanceSetting = function(entity,data)
 	SetVehicleWheelWidth(entity,tonumber(data['wheelwidth'] or 1.0) + 0.0)
 	for i = 0 , 3 do
 		if i <= 1 then
-			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetfront'][i]))
+			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetfront'][tostring(i)]))
 			--SetVehicleWheelYRotation(entity,i,tonumber(data['wheelrotationfront'][i]))
 		else
 			--SetVehicleWheelYRotation(entity,i,tonumber(data['wheelrotationrear'][i]))
-			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetrear'][i]))
+			SetVehicleWheelXOffset(entity,i,tonumber(data['wheeloffsetrear'][tostring(i)]))
 		end
 	end
 end
@@ -369,7 +369,7 @@ RegisterNUICallback('wheelsetting', function(data, cb)
 	if veh_stats[plate] == nil then veh_stats[plate] = {} end
 	if veh_stats[plate]['wheelsetting'] == nil then veh_stats[plate]['wheelsetting'] = {} end
 	local vehicle_height = GetVehicleSuspensionHeight(vehicle)
-	if wheelsettings[plate] == nil then wheelsettings[plate] = {} end
+	wheelsettings[plate] = {}
 	if wheelsettings[plate]['wheeloffsetfront'] == nil then wheelsettings[plate]['wheeloffsetfront'] = {} end
 	if wheelsettings[plate]['wheeloffsetrear'] == nil then wheelsettings[plate]['wheeloffsetrear'] = {} end
 	if wheelsettings[plate]['wheelrotationfront'] == nil then wheelsettings[plate]['wheelrotationfront'] = {} end
@@ -377,29 +377,31 @@ RegisterNUICallback('wheelsetting', function(data, cb)
 
 	for i = 0 , 3 do
 		if i <= 1 then
-			if wheelsettings[plate]['wheeloffsetfront'][i] == nil then
-				wheelsettings[plate]['wheeloffsetfront'][i] = GetVehicleWheelXOffset(vehicle,i)
-			end
-			if wheelsettings[plate]['wheelrotationfront'][i] == nil then
-				wheelsettings[plate]['wheelrotationfront'][i] =  GetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberFront') --GetVehicleWheelYRotation(vehicle,i)
-			end
+			if wheelsettings[plate]['wheeloffsetfront'][tonumber(i)] then wheelsettings[plate]['wheeloffsetfront'][tonumber(i)] = nil end
+
+			wheelsettings[plate]['wheeloffsetfront'][tostring(i)] = GetVehicleWheelXOffset(vehicle,i)
+			
+			if wheelsettings[plate]['wheelrotationfront'][tonumber(i)] then wheelsettings[plate]['wheelrotationfront'][tonumber(i)] = nil end
+
+			wheelsettings[plate]['wheelrotationfront'][tostring(i)] =  GetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberFront') --GetVehicleWheelYRotation(vehicle,i)
 		else
-			if wheelsettings[plate]['wheeloffsetrear'][i] == nil then
-				wheelsettings[plate]['wheeloffsetrear'][i] = GetVehicleWheelXOffset(vehicle,i)
-			end
-			if wheelsettings[plate]['wheelrotationrear'][i] == nil then
-				wheelsettings[plate]['wheelrotationrear'][i] = GetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear') -- GetVehicleWheelYRotation(vehicle,i)
-			end
+			if wheelsettings[plate]['wheeloffsetrear'][tonumber(i)] then wheelsettings[plate]['wheeloffsetrear'][tonumber(i)] = nil end
+
+			wheelsettings[plate]['wheeloffsetrear'][tostring(i)] = GetVehicleWheelXOffset(vehicle,i)
+
+			if wheelsettings[plate]['wheelrotationrear'][tonumber(i)] then wheelsettings[plate]['wheelrotationrear'][tonumber(i)] = nil end
+
+			wheelsettings[plate]['wheelrotationrear'][tostring(i)] = GetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear') -- GetVehicleWheelYRotation(vehicle,i)
 		end
 	end
-	if wheelsettings[plate]['wheelwidth'] == nil then
-		wheelsettings[plate]['wheelwidth'] = tonumber(GetVehicleWheelWidth(vehicle))
-	end
-	if wheelsettings[plate]['wheelsize'] == nil then
-		wheelsettings[plate]['wheelsize'] = tonumber(GetVehicleWheelSize(vehicle))
-	end
+	wheelsettings[plate]['wheelwidth'] = tonumber(GetVehicleWheelWidth(vehicle))
+
+	wheelsettings[plate]['wheelsize'] = tonumber(GetVehicleWheelSize(vehicle))
+
 	veh_stats[plate]['wheelsetting'] = wheelsettings[plate]
+
 	veh_stats[plate].height = vehicle_height
+	
     if vehicle ~= nil and vehicle ~= 0 then
 		local ent = Entity(vehicle).state
 		veh_stats[plate].wheeledit = false

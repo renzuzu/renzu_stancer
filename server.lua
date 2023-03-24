@@ -4,70 +4,80 @@ RegisterUsableItem = nil
 Initialized()
 local stancer = {}
 
-Citizen.CreateThread(function()
-    Wait(1000)
-    -- DeleteResourceKvp('stancer')
-    local ret = json.decode(GetResourceKvpString('stancer') or '[]') or {}
-    for k, v in pairs(ret) do
-        if stancer[v.plate] == nil then stancer[v.plate] = {} end
-        stancer[v.plate].plate = v.plate
-        stancer[v.plate].stancer = v.setting
-        stancer[v.plate].online = false
+
+local sql = setmetatable({},{
+	__call = function(self)
+
+		self.insert = function(plate,...)
+			local str = 'INSERT INTO %s (%s, %s) VALUES(?, ?)'
+			return MySQL.insert.await(str:format('renzu_stancer','plate','setting'),{plate,...})
+		end
+
+		self.save = function(string, data)
+			local str = 'UPDATE %s SET setting = ? WHERE %s = ?'
+			local isExist = self.query(string)
+			if isExist[1] then
+				return MySQL.update(str:format('renzu_stancer','plate'),{data,string})
+			else
+				return self.insert(string,data)
+			end
+		end
+
+		self.query = function(string)
+			local str = 'SELECT * FROM %s WHERE %s = ?'
+			return MySQL.query.await(str:format('renzu_stancer','plate'),{string})
+		end
+
+        self.fetch = function()
+            return MySQL.query.await('SELECT * FROM renzu_stancer')
+        end
+
+		return self
+	end
+})
+
+local db = sql()
+
+Citizen.CreateThreadNow(function()
+	local success, result = pcall(MySQL.scalar.await, 'SELECT 1 FROM renzu_stancer')
+
+	if not success then
+		MySQL.query.await([[CREATE TABLE `renzu_stancer` (
+			`plate` varchar(128) NOT NULL AUTO_INCREMENT KEY,
+			`setting` longtext DEFAULT NULL
+		)]])
+		print("^2SQL INSTALL SUCCESSFULLY ^0")
+	end
+
+	local backup = GetResourceKvpString('stancer')
+
+	if backup then
+		local data = json.decode(backup)
+	end
+
+    local fetch = db.fetch()
+
+    for k,v in pairs(fetch) do
+        stancer[v.plate] = json.decode(v.setting)
+        print(v.plate)
     end
 
-    for k, v in ipairs(GetAllVehicles()) do
-        local plate = GetVehicleNumberPlateText(v)
-        if stancer[plate] and plate == stancer[plate].plate then
-            if stancer[plate].stancer then
-                local ent = Entity(v).state
-                local data = ReformatStancer(stancer[plate].stancer)
-                ent:set('stancer', data, true)
-                ent:set('online', true, true)
-            end
+    for k, vehicle in ipairs(GetAllVehicles()) do
+        local plate = GetVehicleNumberPlateText(vehicle)
+        if stancer[plate] then 
+            print(plate)
+            Entity(vehicle).state:set('stancer', stancer[plate], true)
+            Wait(0)
         end
     end
 end)
 
-ReformatStancer = function(stancer)
-    local data = {}
-    for k, v in pairs(stancer) do
-        if k == 'wheelsetting' then
-            for k1, v in pairs(v) do
-                if type(v) == 'table' then
-                    for k2, v in pairs(v) do
-                        if data[k] == nil then
-                            data[k] = {}
-                        end
-                        if data[k][k1] == nil then
-                            data[k][k1] = {}
-                        end
-                        data[k][k1][tonumber(k2)] = v
-                    end
-                elseif k and k1 then
-                    if data[k] == nil then data[k] = {} end
-                    if data[k][k1] == nil then
-                        data[k][k1] = {}
-                    end
-                    data[k][k1] = v
-                end
-            end
-        elseif k then
-            data[k] = v
-        end
-    end
-    return data
-end
-
-function SaveStancer(ob)
-    local plate = ob.plate
-    local data = json.decode(GetResourceKvpString('stancer') or '[]') or {}
-    local result = data[plate]
-    if result == nil then
-        data[plate] = {plate = ob.plate, setting = ob.setting}
-        SetResourceKvp('stancer', json.encode(data))
-    elseif result then
-        data[plate] = {plate = ob.plate, setting = ob.setting}
-        SetResourceKvp('stancer', json.encode(data))
+function SaveStancer(data)
+    local result = db.query(data.plate)
+    if result[1] == nil then
+        db.save(plate,json.encode(data.setting))
+    elseif result[1] then
+        db.save(plate,json.encode(data.setting))
     end
 end
 
@@ -95,15 +105,13 @@ function AddStancerKit(veh)
     local veh = veh
     if veh == nil then veh = GetVehiclePedIsIn(GetPlayerPed(source), false) end
     local plate = GetVehicleNumberPlateText(veh)
+    print("ADD")
     if not stancer[plate] then
         stancer[plate] = {}
         local ent = Entity(veh).state
         if not ent.stancer then
-            stancer[plate].stancer = {}
-            stancer[plate].plate = plate
-            stancer[plate].online = true
-            ent:set('stancer',stancer[plate],true)
-            SaveStancer({plate = plate, setting = {}})
+            ent:set('stancer',{},true)
+            db.save(plate,'[]')
         end
     end
 end
@@ -124,18 +132,14 @@ end)
 
 registercallback('stancers', function(source,plate)
 	local plate = plate
-	return stancer[plate] and ReformatStancer(stancer[plate].stancer)
+	return stancer[plate]
 end)
 
 SetStancer = function(entity)
-    if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 and
-        GetEntityType(entity) == 2 then
+    if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 and GetEntityType(entity) == 2 then
         local plate = GetVehicleNumberPlateText(entity)
-        if stancer[plate] and stancer[plate].stancer then
-            local ent = Entity(entity).state
-            local stance = ReformatStancer(stancer[plate].stancer)
-            ent:set('stancer',stance,true)
-            stancer[plate].online = true
+        if stancer[plate] then
+            Entity(entity).state:set('stancer',stancer[plate],true)
         end
     end
 end
@@ -159,14 +163,11 @@ end)
 
 AddEventHandler('entityRemoved', function(entity)
     local entity = entity
-    if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 and
-        GetEntityType(entity) == 2 then
+    if DoesEntityExist(entity) and GetEntityPopulationType(entity) == 7 and GetEntityType(entity) == 2 then
         local ent = Entity(entity).state
         if ent.stancer then
             local plate = GetVehicleNumberPlateText(entity)
-            stancer[plate].online = false
-            stancer[plate].stancer = ent.stancer
-            SaveStancer({plate = plate, setting = stancer[plate].stancer})
+            db.save(plate,json.encode(ent.stancer))
         end
     end
 end)
@@ -177,11 +178,9 @@ AddEventHandler("renzu_stancer:save", function(stance)
     local ent = Entity(vehicle).state
     if ent.stancer then
         local plate = GetVehicleNumberPlateText(vehicle)
-        local data = json.decode(GetResourceKvpString('stancer') or '[]') or {}
         if not stancer[plate] then stancer[plate] = {} end
-        stancer[plate].stancer = stance
-        data[plate] = {plate = plate, setting = stance}
-        SetResourceKvp('stancer', json.encode(data))
+        stancer[plate] = stance
+        db.save(plate,json.encode(ent.stancer))
     end
 end)
 
