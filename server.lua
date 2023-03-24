@@ -53,19 +53,22 @@ Citizen.CreateThreadNow(function()
 
 	if backup then
 		local data = json.decode(backup)
+        for plate,v in pairs(data) do
+            if v.setting.wheelsetting then
+                stancer[plate] = v.setting.wheelsetting
+            end
+        end
 	end
 
     local fetch = db.fetch()
 
     for k,v in pairs(fetch) do
         stancer[v.plate] = json.decode(v.setting)
-        print(v.plate)
     end
 
     for k, vehicle in ipairs(GetAllVehicles()) do
         local plate = GetVehicleNumberPlateText(vehicle)
         if stancer[plate] then 
-            print(plate)
             Entity(vehicle).state:set('stancer', stancer[plate], true)
             Wait(0)
         end
@@ -87,7 +90,6 @@ Citizen.CreateThread(function()
     if Config.Framework ~= 'Standalone' then
         for k, v in pairs(Config.items) do
             local stanceritem = string.lower(v)
-            print("register item", v)
             RegisterUsableItem(stanceritem, function(source)
                 local xPlayer = GetPlayerFromId(source)
                 local veh = GetVehiclePedIsIn(GetPlayerPed(source), false)
