@@ -39,11 +39,16 @@ local sql = setmetatable({},{
 local db = sql()
 
 Citizen.CreateThreadNow(function()
-	local success, result = pcall(MySQL.scalar.await, 'SELECT 1 FROM renzu_stancer')
+    if not Config.DBName or Config.DBName == '' then
+        print('^1[RENZU_STANCER] ^0Please put your database name in config.lua line 6')
+        return
+    end
+    local havedb = MySQL.query.await('SELECT * FROM information_schema.tables WHERE table_schema = ? AND table_name = ?', {Config.DBName, 'renzu_stancer'})
 
-	if not success then
+	if not havedb[1] then
 		MySQL.query.await([[CREATE TABLE `renzu_stancer` (
-			`plate` varchar(128) NOT NULL AUTO_INCREMENT KEY,
+            `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`plate` varchar(128) NOT NULL,
 			`setting` longtext DEFAULT NULL
 		)]])
 		print("^2SQL INSTALL SUCCESSFULLY ^0")
