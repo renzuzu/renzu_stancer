@@ -94,12 +94,12 @@ function SqlFunc(plugin,type,query,var)
         end)
     end
     if type == 'execute' and plugin == 'oxmysql' then
-        exports.oxmysql:query(query, var, function(result)
+        MySQL.Async.execute(query, var, function(result)
             wait:resolve(result)
         end)
     end
     if type == 'fetchAll' and plugin == 'oxmysql' then
-		exports.oxmysql:query(query, var, function(result)
+		MySQL.query(query, var, function(result)
 			wait:resolve(result)
 		end)
     end
