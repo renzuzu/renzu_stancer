@@ -259,8 +259,8 @@ AddStateBagChangeHandler('stancer' --[[key filter]], nil --[[bag filter]], funct
 	SetVehicleHandlingFloat(vehicle, 'CCarHandlingData', 'fCamberRear', value['wheelsetting']['wheelrotationrear']['2'])
 	SetVehicleWheelWidth(vehicle,tonumber(value['wheelsetting']['wheelwidth']))
 	SetVehicleWheelSize(vehicle,tonumber(value['wheelsetting']['wheelsize']))
-	SetReduceDriftVehicleSuspension(vehicle,true)
-	SetVehicleHandlingField(vehicle, 'CCarHandlingData', 'strAdvancedFlags', 0x8000+0x4000000)
+	--SetReduceDriftVehicleSuspension(vehicle,true)
+	--SetVehicleHandlingField(vehicle, 'CCarHandlingData', 'strAdvancedFlags', 0x8000+0x4000000)
 	if vehiclesinarea[plate] == nil then vehiclesinarea[plate] = {} vehiclesinarea[plate]['plate'] = plate end
 	vehiclesinarea[plate]['wheelsetting'] = value['wheelsetting']
 	vehiclesinarea[plate]['speed'] = GetEntitySpeed(vehicle)
@@ -449,8 +449,8 @@ function OpenStancer()
 	end
 	if busy or not ent.stancer then Notify('No Stancer Kit Install') return end
 	local cache = ent.stancer
-	SetReduceDriftVehicleSuspension(vehicle,true)
-	SetVehicleHandlingField(vehicle, 'CCarHandlingData', 'strAdvancedFlags', 0x8000+0x4000000)
+	--SetReduceDriftVehicleSuspension(vehicle,true)
+	--SetVehicleHandlingField(vehicle, 'CCarHandlingData', 'strAdvancedFlags', 0x8000+0x4000000)
 	isbusy = true
 	if vehicle  ~= 0 and #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(vehicle )) < 15 and GetVehicleDoorLockStatus(vehicle ) == 1 then
 		carcontrol = not carcontrol
