@@ -43,7 +43,7 @@ Citizen.CreateThreadNow(function()
 
 	if not success then
 		MySQL.query.await([[CREATE TABLE `renzu_stancer` (
-			`plate` varchar(128) NOT NULL AUTO_INCREMENT KEY,
+			`plate` varchar(128) NOT NULL,
 			`setting` longtext DEFAULT NULL
 		)]])
 		print("^2SQL INSTALL SUCCESSFULLY ^0")
