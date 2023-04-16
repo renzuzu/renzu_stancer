@@ -10,7 +10,7 @@ shared_scripts {
 }
 
 server_scripts {
-	'@mysql-async/lib/MySQL.lua',	
+	'@oxmysql/lib/MySQL.lua',
     'framework/sv_wrapper.lua',
 	"server.lua"
 }
